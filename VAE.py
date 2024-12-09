@@ -74,7 +74,7 @@ class VAE(torch.nn.Module):
             self.decoder_layers.append(torch.nn.Linear(decoder_layers[i], output_dim))
             if i < len(decoder_layers) - 2:  # Attivazione solo per i layer nascosti
                 self.decoder_layers.append(torch.nn.LeakyReLU())
-        # Aggiungi una funzione di attivazione all'ultimo layer, se necessario
+        self.decoder_layers.append(torch.nn.Sigmoid())  #Attivazione per l'ultimo layer
         self.decoder = torch.nn.Sequential(*self.decoder_layers)
 
 
