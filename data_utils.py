@@ -229,10 +229,10 @@ class SimulationData:
         Crea gli embedding a ritardo temporale per z1, z2, z3.
         CAMBIA QUA PER NORMALIZZARE O MENO
         """
-        self.y1_embedding = self.create_time_delay_embedding(self.y1, self.tau, self.embedding_dim)
+        self.y1_embedding = self.create_time_delay_embedding(self.y1_norm, self.tau, self.embedding_dim)
         # Supponiamo che y2 sia una matrice con shape (n_steps, n_dimensions)
-        y2_component_1 = self.y2[:, 0]
-        y2_component_2 = self.y2[:, 1]
+        y2_component_1 = self.y2_norm[:, 0]
+        y2_component_2 = self.y2_norm[:, 1]
 
         self.y2_embedding_1 = create_time_delay_embedding(y2_component_1, self.tau, self.embedding_dim)
         self.y2_embedding_2 = create_time_delay_embedding(y2_component_2, self.tau, self.embedding_dim)
