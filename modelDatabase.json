@@ -1,0 +1,235 @@
+{
+    "Prova,1": {
+        "latent_dim": 5,
+        "encoder_layers": [
+            20,
+            15,
+            10,
+            5
+        ],
+        "decoder_layers": [
+            5,
+            10,
+            15,
+            20,
+            25,
+            30,
+            35,
+            40
+        ],
+        "beta_method": "sigmoid",
+        "beta_value": 0.5,
+        "kl_annealing_epochs": 100,
+        "early_stopping": {
+            "patience": 10,
+            "delta": -1
+        },
+        "dataset": "delay15dim20_noise3,5",
+        "batch_size": 32,
+        "optimizer": "Adam",
+        "learning_rate": 0.01,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.1,
+                "patience": 5
+            }
+        }
+    },
+    "Prova,2": {
+        "latent_dim": 4,
+        "encoder_layers": [
+            20,
+            15,
+            10,
+            8,
+            4
+        ],
+        "decoder_layers": [
+            4,
+            10,
+            15,
+            20,
+            25,
+            30,
+            35,
+            40
+        ],
+        "beta_method": "sigmoid",
+        "beta_value": 0.5,
+        "kl_annealing_epochs": 100,
+        "early_stopping": {
+            "patience": 10,
+            "delta": -1
+        },
+        "dataset": "delay15dim20_noise9,5",
+        "batch_size": 32,
+        "optimizer": "Adam",
+        "learning_rate": 0.01,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.1,
+                "patience": 5
+            }
+        }
+    },
+    "Prova,3": {
+        "latent_dim": 4,
+        "encoder_layers": [
+            20,
+            15,
+            10,
+            8,
+            4
+        ],
+        "decoder_layers": [
+            4,
+            10,
+            15,
+            20,
+            25,
+            30,
+            35,
+            40
+        ],
+        "beta_method": "sigmoid",
+        "beta_value": 0.5,
+        "kl_annealing_epochs": 70,
+        "early_stopping": {
+            "patience": 10,
+            "delta": -1
+        },
+        "dataset": "delay15dim20_noise3,5",
+        "batch_size": 32,
+        "optimizer": "Adam",
+        "learning_rate": 0.01,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.1,
+                "patience": 5
+            }
+        }
+    },
+    "NoBetaAlpha": {
+        "latent_dim": 5,
+        "encoder_layers": [
+            20,
+            15,
+            10,
+            8,
+            5
+        ],
+        "decoder_layers": [
+            5,
+            10,
+            15,
+            20,
+            25,
+            30,
+            35,
+            40
+        ],
+        "beta_method": "sigmoid",
+        "beta_value": 0.5,
+        "kl_annealing_epochs": 70,
+        "early_stopping": {
+            "patience": 10,
+            "delta": 1
+        },
+        "dataset": "delay15dim20_noise0,0",
+        "batch_size": 32,
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.1,
+                "patience": 5
+            }
+        }
+    },
+    "NoBetaAM": {
+        "latent_dim": 5,
+        "encoder_layers": [
+            20,
+            15,
+            10,
+            8,
+            5
+        ],
+        "decoder_layers": [
+            5,
+            10,
+            15,
+            20,
+            25,
+            30,
+            35,
+            40
+        ],
+        "beta_method": "sigmoid",
+        "beta_value": 0.5,
+        "kl_annealing_epochs": 70,
+        "early_stopping": {
+            "patience": 10,
+            "delta": 1
+        },
+        "dataset": "delay15dim20_noise6,0",
+        "batch_size": 32,
+        "optimizer": "Adam",
+        "learning_rate": 0.01,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.1,
+                "patience": 5
+            }
+        }
+    },
+    "Try1": {
+        "latent_dim": 4,
+        "encoder_layers": [
+            20,
+            15,
+            10,
+            8,
+            4
+        ],
+        "decoder_layers": [
+            4,
+            10,
+            15,
+            20,
+            25,
+            30,
+            35,
+            40
+        ],
+        "beta_method": "sigmoid",
+        "beta_value": 0.5,
+        "kl_annealing_epochs": 200,
+        "early_stopping": {
+            "patience": 10,
+            "delta": 1
+        },
+        "dataset": "delay15dim20_noise3,0",
+        "batch_size": 32,
+        "optimizer": "Adam",
+        "learning_rate": 0.01,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.1,
+                "patience": 5
+            }
+        }
+    }
+}
