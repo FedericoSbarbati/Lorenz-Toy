@@ -1,3 +1,47 @@
 {
-    
+    "Seconda": {
+        "latent_dim": 5,
+        "encoder_layers": [
+            20,
+            17,
+            15,
+            12,
+            10,
+            8,
+            5,
+            3
+        ],
+        "decoder_layers": [
+            3,
+            7,
+            10,
+            15,
+            20,
+            25,
+            30,
+            35,
+            40
+        ],
+        "beta_method": "sigmoid",
+        "beta_value": 0.5,
+        "kl_annealing_epochs": 100,
+        "decay_start": 100,
+        "decay_epoch": 50,
+        "early_stopping": {
+            "patience": 10,
+            "delta": -1
+        },
+        "dataset": "delay15dim20_noise6,0",
+        "batch_size": 32,
+        "optimizer": "Adam",
+        "learning_rate": 0.01,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.1,
+                "patience": 5
+            }
+        }
+    }
 }

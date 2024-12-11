@@ -103,8 +103,6 @@ class VAE(torch.nn.Module):
         return decoded, mu, log_var
 
 
-
-
     def reparameterize(self, mu, log_var):
         std = torch.exp(0.5 * log_var)
         eps = torch.randn_like(std)
@@ -189,29 +187,54 @@ def get_scheduler(optimizer, scheduler_config):
 
 
 
-def get_beta(epoch, warmup_epochs, method="constant", beta_value=1.0):
+def get_beta(epoch, warmup_epochs, method="constant", beta_value=1.0, decay_start=100, decay_epochs=50):
     """
     Calcola il valore di beta in base al metodo specificato.
 
     Parametri:
     - epoch: epoca corrente.
     - warmup_epochs: numero di epoche di warm-up.
-    - method: metodo per calcolare beta (constant, sigmoid, linear).
+    - method: metodo per calcolare beta (constant, sigmoid, linear, linear_decay, exponential_decay).
     - beta_value: valore costante di beta (usato per il metodo "constant").
+    - decay_start: epoca in cui iniziare la diminuzione di beta.
+    - decay_epochs: numero di epoche su cui effettuare la diminuzione (lineare/esponenziale).
     
     Ritorna:
     - Valore di beta.
     """
     if method == "constant":
         return beta_value
+
     elif method == "sigmoid":
         return 1 / (1 + math.exp(-0.1 * (epoch - warmup_epochs // 2)))
+
     elif method == "linear":
         return min(1.0, epoch / warmup_epochs)
+
+    elif method == "linear_decay":
+        # Warm-up fino a warmup_epochs, poi diminuzione lineare
+        if epoch <= warmup_epochs:
+            return min(1.0, epoch / warmup_epochs)
+        elif epoch > decay_start:
+            return max(0.0, 1.0 - (epoch - decay_start) / decay_epochs)
+        else:
+            return 1.0
+
+    elif method == "exponential_decay":
+        # Warm-up fino a warmup_epochs, poi diminuzione esponenziale
+        if epoch <= warmup_epochs:
+            return min(1.0, epoch / warmup_epochs)
+        elif epoch > decay_start:
+            decay_rate = decay_epochs / 5  # Fattore di scala per il decadimento
+            return max(0.0, 1.0 * math.exp(-float(epoch - decay_start) / decay_rate))
+        else:
+            return 1.0
+
     else:
         raise ValueError(f"Metodo di beta sconosciuto: {method}")
+
     
-def plot_results(train_losses, val_losses, recon_losses, kld_losses, beta_values):
+def plot_results(train_losses, val_losses, recon_losses, kld_losses, beta_values, gradient_history):
     fig, axes = plt.subplots(1, 3, figsize=(18, 6))
 
     # Plot KLD loss vs reconstruction loss
@@ -243,6 +266,20 @@ def plot_results(train_losses, val_losses, recon_losses, kld_losses, beta_values
     plt.tight_layout()
     plt.show()
 
+    # Carica i gradienti salvati
+    epochs = range(len(gradient_history["encoder"]))
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(epochs, gradient_history["encoder"], label="Encoder Gradient Norm")
+    plt.plot(epochs, gradient_history["decoder"], label="Decoder Gradient Norm")
+    plt.plot(epochs, gradient_history["latent"], label="Latent Gradient Norm")
+    plt.xlabel("Epoch")
+    plt.ylabel("Gradient Norm")
+    plt.title("Gradient Norm Evolution During Training")
+    plt.legend()
+    plt.grid()
+    plt.show()
+
 
 def loss_function_vae(recon_x, x, mu, log_var, beta):
     # Ricostruzione loss
@@ -251,7 +288,7 @@ def loss_function_vae(recon_x, x, mu, log_var, beta):
     kld_loss = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
     return recon_loss + beta * kld_loss, recon_loss, kld_loss
 
-def reconstruct_z2fromz1(epochs, train_loader, val_loader, model, optimizer, scheduler, scheduler_config, kl_annealing_epochs, beta_method="constant", beta_value=1.0, early_stopping_params=None):
+def reconstruct_z2fromz1(epochs, train_loader, val_loader, model, optimizer, scheduler, scheduler_config, kl_annealing_epochs, decay_start, decay_epoch, beta_method="constant", beta_value=1.0, early_stopping_params=None):
     # Early stopping
     early_stopping = EarlyStopping(**early_stopping_params) if early_stopping_params else None
 
@@ -261,6 +298,14 @@ def reconstruct_z2fromz1(epochs, train_loader, val_loader, model, optimizer, sch
     recon_losses = []
     kld_losses = []
     beta_values = []
+    lr_evolution = []
+    # Per salvare i gradienti medi per epoch
+    gradient_history = {
+        "encoder": [],
+        "decoder": [],
+        "latent": []
+    }
+
 
     for epoch in range(epochs):
         model.train()
@@ -269,7 +314,7 @@ def reconstruct_z2fromz1(epochs, train_loader, val_loader, model, optimizer, sch
         recon_loss_epoch = 0
 
         # Calcola il valore di beta
-        beta = get_beta(epoch, kl_annealing_epochs, method=beta_method, beta_value=beta_value)
+        beta = get_beta(epoch, kl_annealing_epochs, method=beta_method, beta_value=beta_value, decay_start=decay_start, decay_epochs=decay_epoch)
         beta_values.append(beta)
 
         for batch in train_loader:
@@ -285,6 +330,36 @@ def reconstruct_z2fromz1(epochs, train_loader, val_loader, model, optimizer, sch
             loss, recon_loss, kld_loss = loss_function_vae(recon_y2, y2, mu, log_var, beta)
 
             loss.backward()
+
+                        # Variabili temporanee per sommare i gradienti per batch
+            encoder_grad_total = 0
+            decoder_grad_total = 0
+            latent_grad_total = 0
+            num_batches = 0
+
+            # Nel ciclo batch del training
+            for name, param in model.named_parameters():
+                if param.grad is not None:
+                    grad_norm = param.grad.norm().item()
+                    if "encoder" in name:
+                        encoder_grad_total += grad_norm
+                    elif "decoder" in name:
+                        decoder_grad_total += grad_norm
+                    elif "fc_mu" in name or "fc_log_var" in name: 
+                        latent_grad_total += grad_norm
+            num_batches += 1
+
+            # Accesso ai learning rate
+            for param_group in optimizer.param_groups:
+                current_lr = param_group['lr']
+
+            lr_evolution.append(current_lr)
+
+            # Alla fine dell'epoch, calcola la media
+            gradient_history["encoder"].append(encoder_grad_total / num_batches)
+            gradient_history["decoder"].append(decoder_grad_total / num_batches)
+            gradient_history["latent"].append(latent_grad_total / num_batches)
+
             optimizer.step()
             
             epoch_loss += loss.item()
@@ -331,15 +406,15 @@ def reconstruct_z2fromz1(epochs, train_loader, val_loader, model, optimizer, sch
               f'Beta: {beta:.4f}, Training Loss: {epoch_loss:.4f}')
 
     # Plot dei risultati
-    plot_results(train_losses, val_losses, recon_losses, kld_losses, beta_values)
+    plot_results(train_losses, val_losses, recon_losses, kld_losses, beta_values, gradient_history)
 
-    return train_losses, val_losses, recon_losses, kld_losses, beta_values, early_stopping.stopped_epoch
+    return train_losses, val_losses, recon_losses, kld_losses, beta_values, early_stopping.stopped_epoch, gradient_history, lr_evolution
 
 
 
 # METHODS TO SAVE AND LOAD OPTIMIZER STATE
 
-def save_model(model, optimizer, train_data, val_data, epoch, stopped_epoch, encoder_layers, decoder_layers, train_losses, val_losses, recon_losses, kld_losses, beta_values, output_folder="Models", model_name="autoencoder_model.pth"):
+def save_model(model, optimizer, train_data, val_data, epoch, stopped_epoch, encoder_layers, decoder_layers, train_losses, val_losses, recon_losses, kld_losses, beta_values, gradient_history, output_folder="Models", model_name="autoencoder_model.pth"):
     """
     Salva il modello, lo stato dell'ottimizzatore e i dati di training/validazione.
 
@@ -371,7 +446,8 @@ def save_model(model, optimizer, train_data, val_data, epoch, stopped_epoch, enc
         'val_losses': val_losses,
         'recon_losses': recon_losses,
         'kld_losses': kld_losses,
-        'beta_values': beta_values
+        'beta_values': beta_values,
+        'gradient_history' : gradient_history
     }, file_path)
 
     print(f"Model saved to {file_path}")
@@ -408,9 +484,10 @@ def load_model(file_path):
     recon_losses = checkpoint['recon_losses']
     kld_losses = checkpoint['kld_losses']
     beta_values = checkpoint['beta_values']
+    gradient_history = checkpoint['gradient_history']
 
     return (model, optimizer, train_data, val_data, epoch, stopped_epoch,
-            train_losses, val_losses, recon_losses, kld_losses, beta_values)
+            train_losses, val_losses, recon_losses, kld_losses, beta_values,gradient_history)
 
 import torch
 import numpy as np
