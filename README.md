@@ -21,6 +21,11 @@ Work in program:
 2) Create a Dummy decoder for the quality reconstruction of Z2 analysis
 3) Analysisof the meaningfull of the latent rapresentation
 
+Problems:
+
+Lr going down too much before the KLD loss become considerable -> Training loss stuck because of too little lr
+-> Have to find a way to implement an increasing lr to use when recon loss is stable and low but KLD is giant 
+
 
 - DECODER TRAINING:
 

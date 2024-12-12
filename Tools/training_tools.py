@@ -126,11 +126,11 @@ def get_beta(epoch, warmup_epochs, method="constant", beta_value=1.0, decay_star
         raise ValueError(f"Metodo di beta sconosciuto: {method}")
 
     
-def plot_results(train_losses, val_losses, recon_losses, kld_losses, beta_values, gradient_history):
+def plot_results(train_losses, val_losses, recon_losses, kld_losses,effective_kld_losses, beta_values, gradient_history):
     fig, axes = plt.subplots(1, 3, figsize=(18, 6))
 
     # Plot KLD loss vs reconstruction loss
-    axes[0].plot(kld_losses, label='KLD Loss', color='blue')
+    axes[0].plot(effective_kld_losses, label=f'KLD Loss * beta ', color='blue')
     axes[0].plot(recon_losses, label='Reconstruction Loss', color='red')
     axes[0].set_title('KLD Loss vs Reconstruction Loss')
     axes[0].set_xlabel('Epoch')
@@ -156,6 +156,16 @@ def plot_results(train_losses, val_losses, recon_losses, kld_losses, beta_values
     axes[2].grid(True)
 
     plt.tight_layout()
+    plt.show()
+
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(kld_losses, label="KLD Loss")
+    plt.xlabel("Epoch")
+    plt.ylabel("KLD Loss")
+    plt.title("KLD Loss Evolution During Training")
+    plt.legend()
+    plt.grid()
     plt.show()
 
     # Carica i gradienti salvati
@@ -233,7 +243,7 @@ def visualize_latent_space_with_pca(model, dataloader, device='cpu', n_component
 
 # Salvataggio e caricamento del modello
 def save_model(encoder, decoder, optimizer, train_data, val_data, epoch, stopped_epoch, encoder_layers, decoder_layers, 
-               train_losses, val_losses, recon_losses, kld_losses, beta_values, gradient_history, 
+               train_losses, val_losses, recon_losses, kld_losses, effective_kld_losses, beta_values, gradient_history, 
                output_folder="Models", model_name="vae_model.pth"):
     """
     Salva encoder, decoder, lo stato dell'ottimizzatore e i dati di training/validazione in un unico file.
@@ -269,6 +279,7 @@ def save_model(encoder, decoder, optimizer, train_data, val_data, epoch, stopped
         'val_losses': val_losses,
         'recon_losses': recon_losses,
         'kld_losses': kld_losses,
+        'effective_kld_losses': effective_kld_losses,
         'beta_values': beta_values,
         'gradient_history': gradient_history
     }, file_path)
@@ -292,6 +303,7 @@ def load_model(path):
         'val_losses': checkpoint['val_losses'],
         'recon_losses': checkpoint['recon_losses'],
         'kld_losses': checkpoint['kld_losses'],
+        'effective_kld_losses': checkpoint['effective_kld_losses'],
         'beta_values': checkpoint['beta_values'],
         'gradient_history': checkpoint['gradient_history']
     }

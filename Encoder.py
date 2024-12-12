@@ -109,6 +109,7 @@ def trainEncoder(epochs, train_loader, val_loader, model, optimizer, scheduler, 
     val_losses = []
     recon_losses = []
     kld_losses = []
+    effective_kld_losses = []
     beta_values = []
     lr_evolution = []
     # Per salvare i gradienti medi per epoch
@@ -124,6 +125,7 @@ def trainEncoder(epochs, train_loader, val_loader, model, optimizer, scheduler, 
         epoch_loss = 0
         kld_loss_epoch = 0
         recon_loss_epoch = 0
+        real_kld_loss = 0
 
         # Calcola il valore di beta
         beta = get_beta(epoch, kl_annealing_epochs, method=beta_method, beta_value=beta_value, decay_start=decay_start, decay_epochs=decay_epoch)
@@ -156,11 +158,11 @@ def trainEncoder(epochs, train_loader, val_loader, model, optimizer, scheduler, 
             for name, param in model.named_parameters():
                 if param.grad is not None:
                     grad_norm = param.grad.norm().item()
-                    if "encoder" in name:
+                    if name in ["encoder.encoder.0.weight", "encoder.encoder.0.bias", "encoder.encoder.2.weight", "encoder.encoder.2.bias"]:
                         encoder_grad_total += grad_norm
-                    elif "decoder" in name:
+                    elif name in ["decoder.decoder.0.weight", "decoder.decoder.0.bias", "decoder.decoder.2.weight", "decoder.decoder.2.bias", "decoder.decoder.4.weight", "decoder.decoder.4.bias"]:
                         decoder_grad_total += grad_norm
-                    elif "fc_mu" in name or "fc_log_var" in name: 
+                    elif name in ["encoder.fc_mu.weight", "encoder.fc_mu.bias", "encoder.fc_log_var.weight", "encoder.fc_log_var.bias"]:
                         latent_grad_total += grad_norm
             num_batches += 1
 
@@ -180,14 +182,17 @@ def trainEncoder(epochs, train_loader, val_loader, model, optimizer, scheduler, 
             epoch_loss += loss.item()
             kld_loss_epoch += kld_loss.item()
             recon_loss_epoch += recon_loss.item()
+            real_kld_loss += (beta*kld_loss.item())
 
         epoch_loss /= len(train_loader.dataset)
         kld_loss_epoch /= len(train_loader.dataset)
         recon_loss_epoch /= len(train_loader.dataset)
+        real_kld_loss /= len(train_loader.dataset)
 
         train_losses.append(epoch_loss)
         recon_losses.append(recon_loss_epoch)
         kld_losses.append(kld_loss_epoch)
+        effective_kld_losses.append(real_kld_loss)
 
         # Validation
         model.eval()
@@ -218,12 +223,12 @@ def trainEncoder(epochs, train_loader, val_loader, model, optimizer, scheduler, 
 
         # Stampa la perdita media dell'epoca
         print(f'Epoch [{epoch+1}/{epochs}], Rec Loss: {recon_loss_epoch:.4f}, KLD Loss: {kld_loss_epoch:.4f}, '
-              f'Beta: {beta:.4f}, Training Loss: {epoch_loss:.4f}, lr = {current_lr:.6f}')
+              f'Beta: {beta:.4f}, KLD*B = {real_kld_loss:.4f} Training Loss: {epoch_loss:.4f}, lr = {current_lr:.6f}')
 
     # Plot dei risultati
-    plot_results(train_losses, val_losses, recon_losses, kld_losses, beta_values, gradient_history)
+    plot_results(train_losses, val_losses, recon_losses, kld_losses, effective_kld_losses, beta_values, gradient_history)
 
-    return train_losses, val_losses, recon_losses, kld_losses, beta_values, early_stopping.stopped_epoch, gradient_history, lr_evolution
+    return train_losses, val_losses, recon_losses, kld_losses, effective_kld_losses, beta_values, early_stopping.stopped_epoch, gradient_history, lr_evolution
 
 
 

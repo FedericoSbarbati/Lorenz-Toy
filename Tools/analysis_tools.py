@@ -347,7 +347,7 @@ def pca_r2_analysis_embeddings(true_embeddings, reconstructed_embeddings, n_comp
     plt.plot(range(1, len(r2_per_component) + 1), r2_per_component, marker='o', label="R² per PC")
     plt.xlabel("Componente Principale (PC)")
     plt.ylabel("R²")
-    plt.title("Varianza Spiegata (R²) per Componente Principale")
+    plt.title("R² per PC tra ricostruzione e originale")
     plt.grid(True)
     plt.legend()
 
