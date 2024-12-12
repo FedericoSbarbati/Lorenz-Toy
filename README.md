@@ -1,17 +1,30 @@
-Appunti:
+Idea Behind this branch:
 
-1) Divergenza KL:
+1. Train the encoder to reconstruct clearly Z2 (y1) from it's embedding to have a meaningfull rappresentatio in the latent space.
 
-Ha valori molto grandi all'inizio del training ma scende molto velocemente anche se beta è nullo quando la ricostruzione scende da 1.4 a 0.8
-Gli ordini di grandezza però sono diversi ( Recon Loss: o(1)  KL loss = o(100) o anche 20)
-Per valori di beta anche molto bassi devia l'apprendimento in favore della KL mandando la Recon in plateau. Non si esce facilmente da qua perchè lo scheduler agisce sulla loss totale. Bisogna vedere come combinare bene i parametri.
-Idea: warm up del learning rate in cicli
+2. Train a configuration of decoder to reconstruct Z2 and Z3 from the y1 representation learned before.
+
+3. Make 3 Network with the same encoder.
+
+3.1) Network to reconstruct both Z1 and Z3
+3.2) Two single decoder focused on reconstructing on variable from Z2
+3.3) Shared decoder with shared layers (weight sharing) and last layer to divide representations of both variables
 
 
-2) Ricostruzione: Il Decoder ricostruisce in maniera ottima Z1 mentre Z3 in maniera pessima. 
-La loss di ricostruzione rimane stagnante rispetto alla KL quindi si ipotizza che la rete preferisca sacrificare la rappresentazione di Z3 e ricostruire meglio Z1 per ottimizzare la loss.
 
-Idea: Allenare encoder a ricostruire se stesso (y1) e poi usare gli stessi pesi dell'encoder aggiungendo una parte in cui alleno un decoder che parte da una rappresentazione ottimale di y1 nello spazio latente e specializza solamente il decoder a ricostruire Z1 e Z3.
-Ma a questo punto cosa faccio: Alleno due decoder quindi faccio due reti neurali con stesso encoder e due differenti decoder?
-Oppure al posto di fare due differenti decoder ne faccio uno unico come ora forzato ad apprendere le rappresentazioni di entrambi?
-Posso usare il weight sharing di alcuni layer del decoder per avere una rappresentazione condivisa che poi si differenzia nei layer finali del decoder?
+
+Work in program:
+
+- ENCODER TRAINING:
+
+1) Adjust architecture to create an Encoder and save it's parameters
+2) Create a Dummy decoder for the quality reconstruction of Z2 analysis
+3) Analysisof the meaningfull of the latent rapresentation
+
+
+- DECODER TRAINING:
+
+Learn how to partially train network.
+
+1) Define the Decoder Class and the training.
+

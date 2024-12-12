@@ -273,3 +273,96 @@ def plot_analysis_results(analysis_data_df):
         plt.show()
     else:
         print("No analysis data available to plot.")
+
+
+def latent_variables(vae_model, mean_vectors, logvar_vectors, dataloader, device='cpu'):
+    # Assumi che il modello e i dati siano già caricati
+    vae_model.eval()  # Imposta il modello in modalità eval
+
+    # Usa mean_vectors e logvar_vectors già calcolati
+    all_mu = torch.tensor(mean_vectors)
+    all_sigma = torch.exp(0.5 * torch.tensor(logvar_vectors))
+
+    ratios = abs(all_mu / all_sigma)
+
+    fig, axes = plt.subplots(ratios.shape[1], 1, figsize=(10, 5 * ratios.shape[1]))
+    for i in range(ratios.shape[1]):  # Per ogni dimensione latente
+        axes[i].hist(ratios[:, i].numpy(), bins=50, alpha=0.7, label=f'Dimensione {i+1}')
+        axes[i].set_xlabel('Rapporto (mean / sigma)')
+        axes[i].set_ylabel('Frequenza')
+        axes[i].set_title(f'Istogramma del Rapporto Mean / Sigma per la Dimensione {i+1}')
+        axes[i].legend()
+        axes[i].grid(True)
+    plt.tight_layout()
+    plt.show()
+
+
+def pca_r2_analysis_embeddings(true_embeddings, reconstructed_embeddings, n_components=4):
+    """
+    Esegue PCA sui vettori di embedding originali e ricostruiti, confronta fino a n_components
+    e calcola R² per ciascuna componente principale.
+
+    Parametri:
+    - true_embeddings: Array 2D (n_samples, embedding_dim) dei vettori originali.
+    - reconstructed_embeddings: Array 2D (n_samples, embedding_dim) dei vettori ricostruiti.
+    - n_components: Numero di componenti principali da analizzare.
+
+    Output:
+    - R² per ogni componente principale.
+    - Varianza spiegata per ogni componente principale.
+    - Grafico della varianza spiegata per ciascuna PC.
+    """
+    # Assicurati che i dati siano 2D
+    if true_embeddings.ndim != 2 or reconstructed_embeddings.ndim != 2:
+        raise ValueError("I dati di input devono essere array 2D con shape (n_samples, embedding_dim).")
+    
+    # PCA sui dati originali
+    pca = PCA(n_components=n_components)
+    pca.fit(true_embeddings)  # Fitta il PCA ai dati originali
+
+    # Proiezione dei dati originali e ricostruiti nello spazio delle PC
+    true_projected = pca.transform(true_embeddings)
+    reconstructed_projected = pca.transform(reconstructed_embeddings)
+
+    # Funzione per calcolare R² a mano
+    def calculate_r2(y_true, y_pred):
+        ss_res = np.sum((y_true - y_pred) ** 2, axis=0)
+        ss_tot = np.sum((y_true - np.mean(y_true, axis=0)) ** 2, axis=0)
+        return 1 - ss_res / ss_tot
+
+    # Calcolo di R² per ciascuna componente principale
+    r2_per_component = [
+        calculate_r2(true_projected[:, i], reconstructed_projected[:, i])
+        for i in range(true_projected.shape[1])
+    ]
+
+    # Ottenere la varianza spiegata da ciascuna componente principale
+    explained_variance = pca.explained_variance_ratio_
+
+    # Plot dei risultati
+    plt.figure(figsize=(12, 6))
+    
+    # Subplot 1: R² per componente principale
+    plt.subplot(1, 2, 1)
+    plt.plot(range(1, len(r2_per_component) + 1), r2_per_component, marker='o', label="R² per PC")
+    plt.xlabel("Componente Principale (PC)")
+    plt.ylabel("R²")
+    plt.title("Varianza Spiegata (R²) per Componente Principale")
+    plt.grid(True)
+    plt.legend()
+
+    # Subplot 2: Varianza spiegata
+    plt.subplot(1, 2, 2)
+    plt.bar(range(1, len(explained_variance) + 1), explained_variance, alpha=0.7, label="Varianza Spiegata")
+    plt.step(range(1, len(explained_variance) + 1), np.cumsum(explained_variance), where='mid', color='red', label="Cumulativa")
+    plt.xlabel("Componente Principale (PC)")
+    plt.ylabel("Varianza Spiegata")
+    plt.title("Varianza Spiegata per Componente Principale")
+    plt.grid(True)
+    plt.legend()
+    
+    plt.tight_layout()
+    plt.show()
+
+    return r2_per_component, explained_variance
+

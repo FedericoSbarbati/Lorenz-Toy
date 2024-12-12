@@ -37,8 +37,8 @@ def add_config(config, model_name, file_path):
     
     # Controllo per evitare duplicati
     if model_name in configs:
-        print(f"Model {model_name} already exists in the database.")
-        return
+        print(f"Model {model_name} already exists in the database. Overwriting...")
+        
     
     configs[model_name] = config
     save_configs(configs, file_path)
