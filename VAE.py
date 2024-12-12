@@ -206,7 +206,7 @@ def get_beta(epoch, warmup_epochs, method="constant", beta_value=1.0, decay_star
         return beta_value
 
     elif method == "sigmoid":
-        return 1 / (1 + math.exp(-0.1 * (epoch - warmup_epochs // 2)))
+        return beta_value / (1 + math.exp(-0.1 * (epoch - warmup_epochs // 2)))
 
     elif method == "linear":
         return min(1.0, epoch / warmup_epochs)
@@ -318,7 +318,7 @@ def reconstruct_z2fromz1(epochs, train_loader, val_loader, model, optimizer, sch
         beta_values.append(beta)
 
         for batch in train_loader:
-            y1, y2 = batch  # Decomponi input (z1) e target (z2)
+            y1, y2 = batch  # Decomponi input (y1) e target (y2)
             y1 = y1.float()
             y2 = y2.float()
             optimizer.zero_grad()
@@ -331,11 +331,14 @@ def reconstruct_z2fromz1(epochs, train_loader, val_loader, model, optimizer, sch
 
             loss.backward()
 
-                        # Variabili temporanee per sommare i gradienti per batch
+             # Variabili temporanee per sommare i gradienti per batch
             encoder_grad_total = 0
             decoder_grad_total = 0
             latent_grad_total = 0
             num_batches = 0
+
+            # Clip gradient norm
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
 
             # Nel ciclo batch del training
             for name, param in model.named_parameters():
@@ -403,7 +406,7 @@ def reconstruct_z2fromz1(epochs, train_loader, val_loader, model, optimizer, sch
 
         # Stampa la perdita media dell'epoca
         print(f'Epoch [{epoch+1}/{epochs}], Rec Loss: {recon_loss_epoch:.4f}, KLD Loss: {kld_loss_epoch:.4f}, '
-              f'Beta: {beta:.4f}, Training Loss: {epoch_loss:.4f}')
+              f'Beta: {beta:.4f}, Training Loss: {epoch_loss:.4f}, lr = {current_lr:.6f}')
 
     # Plot dei risultati
     plot_results(train_losses, val_losses, recon_losses, kld_losses, beta_values, gradient_history)

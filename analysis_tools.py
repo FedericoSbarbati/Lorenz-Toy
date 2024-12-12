@@ -116,6 +116,7 @@ def visualize_latent_space_with_pca(model, dataloader, device='cpu', n_component
     # Applica la PCA per ridurre lo spazio latente
     pca = PCA(n_components=n_components)
     latent_pca = pca.fit_transform(latent_mu)
+    print("Varianza spiegata:", pca.explained_variance_ratio_)
 
     # Visualizza il risultato
     if n_components == 2:
