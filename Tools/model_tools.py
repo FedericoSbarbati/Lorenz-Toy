@@ -64,4 +64,19 @@ def find_model(file_path, **criteria):
     
     return results
 
+def get_model_config_by_name(file_path, model_name):
+    """
+    Carica i parametri di un modello a partire dal nome.
+
+    Parametri:
+    - file_path: percorso del file JSON.
+    - model_name: nome del modello da cercare.
+
+    Ritorna:
+    - Configurazione del modello se trovato, altrimenti None.
+    """
+    configs = load_configs(file_path)
+    
+    return configs.get(model_name, None)
+
 

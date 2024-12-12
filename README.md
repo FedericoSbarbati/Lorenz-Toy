@@ -24,7 +24,12 @@ Work in program:
 Problems:
 
 Lr going down too much before the KLD loss become considerable -> Training loss stuck because of too little lr
--> Have to find a way to implement an increasing lr to use when recon loss is stable and low but KLD is giant 
+-> Have to find a way to implement an increasing lr to use when recon loss is stable and low but KLD is giant
+Noticed that 0.05 for beta is too high and make recon loss go from 0.1 to 0.4 (4 times more) and KL is a little bit
+better -> Try to use a lower beta with sigmoid (KL real value about 3.0) 
+
+ENCODER MODELLO 2-1: NON ELIMINARE è il MIGLIORE (Noise 3,0, beta max = 0.01) 
+Prova a mantenere la struttura e far variare i parametri di Noise
 
 
 - DECODER TRAINING:

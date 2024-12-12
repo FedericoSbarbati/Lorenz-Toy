@@ -7,7 +7,7 @@ import torch.optim.lr_scheduler as lr_scheduler
 
 from Tools.training_tools import*
 
-# Creazione del dataset
+# Creazione del dataset per allenare l'encoder
 class EmbeddedDataset(Dataset):
     def __init__(self, embedded_data):
         # Assicurati che i dati siano convertiti in float
@@ -19,6 +19,38 @@ class EmbeddedDataset(Dataset):
     def __getitem__(self, idx):
         # Restituisce sia l'input che l'output desiderato (che sono identici)
         return self.data[idx], self.data[idx]
+    
+
+# Creazione del dataset per allenare il decoder con due insiemi di embedding temporali
+class EmbeddedDatasetforDecoder(Dataset):
+    def __init__(self, embedding_y1, embedding_y2_1, embedding_y2_2):
+        """
+        Dataset per embeddings temporali.
+
+        Parametri:
+        - embedding_y1: Array numpy o torch tensor per y1.
+        - embedding_y2_1: Array numpy o torch tensor per y2_1.
+        - embedding_y2_2: Array numpy o torch tensor per y2_2.
+        """
+        # Assicurati che i dati siano convertiti in torch tensor float32
+        self.embedding_y1 = torch.tensor(embedding_y1, dtype=torch.float32)
+        self.embedding_y2_1 = torch.tensor(embedding_y2_1, dtype=torch.float32)
+        self.embedding_y2_2 = torch.tensor(embedding_y2_2, dtype=torch.float32)
+
+    def __len__(self):
+        # La lunghezza del dataset è quella di embedding_y1
+        return len(self.embedding_y1)
+
+    def __getitem__(self, idx):
+        """
+        Restituisce:
+        - input: embedding_y1 (input della rete)
+        - target: concatenazione di embedding_y2_1 e embedding_y2_2
+        """
+        input_data = self.embedding_y1[idx]
+        target_data = torch.cat((self.embedding_y2_1[idx], self.embedding_y2_2[idx]), dim=0)
+        return input_data, target_data
+
     
 
 
