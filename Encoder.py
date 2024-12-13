@@ -130,8 +130,7 @@ class VAE(nn.Module):
     
 
 
-# Training del VAE per ricostruzione di Y1:
-
+# Training del VAE per ricostruzione di Y1: allenamento dell'encoder
 def trainEncoder(epochs, train_loader, val_loader, model, optimizer, scheduler, scheduler_config, kl_annealing_epochs, decay_start, decay_epoch, beta_method="constant", beta_value=1.0, early_stopping_params=None):
     # Early stopping
     early_stopping = EarlyStopping(**early_stopping_params) if early_stopping_params else None
@@ -261,6 +260,109 @@ def trainEncoder(epochs, train_loader, val_loader, model, optimizer, scheduler, 
     plot_results(train_losses, val_losses, recon_losses, kld_losses, effective_kld_losses, beta_values, gradient_history)
 
     return train_losses, val_losses, recon_losses, kld_losses, effective_kld_losses, beta_values, early_stopping.stopped_epoch, gradient_history, lr_evolution
+
+
+# Training del VAE per ricostruzione di Y2 con Encoder già allenato
+def reconstruct_y2fromy1(epochs, train_loader, val_loader, model, optimizer, scheduler, scheduler_config, early_stopping_params=None):
+    # Gradienti dell'Encoder e dello spazio latente sono già congelati nel Notebook principale
+    # Early stopping
+    early_stopping = EarlyStopping(**early_stopping_params) if early_stopping_params else None
+
+    # Liste per memorizzare le perdite
+    train_losses = []
+    val_losses = []
+    # Durante il ciclo di training
+    decoder_gradients = {
+        "decoder": []
+    }
+    lr_evolution = []
+
+    for epoch in range(epochs):
+        model.train()
+        epoch_loss = 0
+        for batch in train_loader:
+            y1, y2 = batch  # Decomponi input (z1) e target (z2)
+            y1 = y1.float()
+            y2 = y2.float()
+            optimizer.zero_grad()
+
+            # Variabili temporanee per sommare i gradienti per batch
+            decoder_grad_total = 0
+            num_batches = 0
+
+            # Calcola l'output della rete
+            recon_y2, _, _ = model(y1)
+
+            # Calcola la perdita basata su z2 (y)
+            recon_loss = torch.nn.functional.mse_loss(recon_y2, y2, reduction='mean')
+            recon_loss.backward()
+
+
+            # Clip decoder gradient norm
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+
+            # Nel ciclo batch del training
+            for name, param in model.named_parameters():
+                if param.grad is not None:
+                    grad_norm = param.grad.norm().item()
+                    if name in ["decoder.decoder.0.weight", "decoder.decoder.0.bias", "decoder.decoder.2.weight", "decoder.decoder.2.bias", "decoder.decoder.4.weight", "decoder.decoder.4.bias"]:
+                        decoder_grad_total += grad_norm
+
+            num_batches += 1
+
+            # Accesso ai learning rate
+            for param_group in optimizer.param_groups:
+                current_lr = param_group['lr']
+
+            lr_evolution.append(current_lr)
+
+            # Alla fine dell'epoch, calcola la media
+            decoder_gradients["decoder"].append(decoder_grad_total / num_batches)
+
+            # Aggiorna solo i parametri del decoder
+            optimizer.step()
+
+            epoch_loss += recon_loss.item()
+
+        epoch_loss /= len(train_loader.dataset)
+        train_losses.append(epoch_loss)
+
+        # Validation
+        model.eval()
+        val_loss = 0
+        with torch.no_grad():
+            for batch in val_loader:
+                y1, y2 = batch  # Decomponi input (y1) e target (y2)
+                y1 = y1.float()
+                y2 = y2.float()
+                recon_y2, _, _ = model(y1)
+                recon_loss = torch.nn.functional.mse_loss(recon_y2, y2, reduction='mean')
+                val_loss += recon_loss.item()
+
+        val_loss /= len(val_loader.dataset)
+        val_losses.append(val_loss)
+
+        if scheduler_config["type"] == "ReduceLROnPlateau":
+            scheduler.step(val_loss)
+        else:
+            scheduler.step()
+
+        # Controllo Early Stopping
+        if early_stopping:
+            early_stopping(val_loss, epoch)
+            if early_stopping.early_stop:
+                print(f"Early stopping at epoch {epoch + 1}")
+                break
+
+        # Stampa la perdita media dell'epoca
+        print(f'Epoch [{epoch+1}/{epochs}], '
+              f'Training Loss: {epoch_loss:.6f}, lr = {current_lr:.6f}')
+
+    # Plot dei risultati DA AGGIORNARE
+    plot_Decoder_results(train_losses, val_losses, decoder_gradients)
+
+    return train_losses, val_losses, early_stopping.stopped_epoch, decoder_gradients, lr_evolution
+
 
 
 
