@@ -34,7 +34,19 @@ Prova a mantenere la struttura e far variare i parametri di Noise
 
 - DECODER TRAINING:
 
-Learn how to partially train network.
+Problems:
+
+Loss is just reconstruction and is very low. Order of e-4 -> Adjust learning rate minimum and use a lower minLr
+Goes on plateau really fast.
 
 1) Define the Decoder Class and the training.
+
+
+
+
+For me:
+
+Best Model: Encoder Name- Decoder Name - Noise Alpha,Beta
+
+2-1 e 1 per 3,0
 

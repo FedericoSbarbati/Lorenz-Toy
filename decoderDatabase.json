@@ -12,10 +12,10 @@
             "patience": 10,
             "delta": -1
         },
-        "dataset": "delay15dim20_noise6,0",
+        "dataset": "delay15dim20_noise3,0",
         "batch_size": 32,
         "optimizer": "Adam",
-        "learning_rate": 0.0001,
+        "learning_rate": 0.01,
         "scheduler": {
             "type": "ReduceLROnPlateau",
             "params": {
@@ -25,9 +25,9 @@
                 "min_lr": 1e-06
             }
         },
-        "Encoder": "3"
+        "Encoder": "2-1"
     },
-    "1.pth": {
+    "2-2": {
         "decoder_layers": [
             5,
             10,
@@ -40,27 +40,36 @@
             "patience": 10,
             "delta": -1
         },
-        "dataset": "delay15dim20_noise6,0",
+        "dataset": "delay15dim20_noise3,0",
         "batch_size": 32,
         "optimizer": "Adam",
-        "learning_rate": 0.0001,
+        "learning_rate": 0.01,
         "scheduler": {
             "type": "ReduceLROnPlateau",
             "params": {
                 "mode": "min",
                 "factor": 0.5,
-                "patience": 15,
-                "min_lr": 1e-06
+                "patience": 10,
+                "min_lr": 1e-07
             }
         },
-        "Encoder": "3"
+        "Encoder": "2-1"
     },
-    "1.pth.pth": {
+    "2-2Deeper": {
         "decoder_layers": [
             5,
+            8,
             10,
+            12,
+            15,
             20,
+            22,
+            25,
+            27,
             30,
+            32,
+            35,
+            38,
             40
         ],
         "latent_dim": 5,
@@ -68,19 +77,19 @@
             "patience": 10,
             "delta": -1
         },
-        "dataset": "delay15dim20_noise6,0",
+        "dataset": "delay15dim20_noise3,0",
         "batch_size": 32,
         "optimizer": "Adam",
-        "learning_rate": 0.0001,
+        "learning_rate": 0.001,
         "scheduler": {
             "type": "ReduceLROnPlateau",
             "params": {
                 "mode": "min",
                 "factor": 0.5,
-                "patience": 15,
-                "min_lr": 1e-06
+                "patience": 10,
+                "min_lr": 1e-07
             }
         },
-        "Encoder": "3"
+        "Encoder": "2-1"
     }
 }
