@@ -4,6 +4,9 @@ import torch
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from sklearn.decomposition import PCA
+import pandas as pd
+import os
+import json
 
 def reconstruct_signal_from_embedding(embedding, embedding_dim, delay):
     """
@@ -174,31 +177,38 @@ def plot_signal_and_pcs(original_signal, embedding, n_pcs=3, n_delays=5, delay_s
 
     return pcs_embedding
 
-import pandas as pd
-import os
-# Funzione per salvare i dati di analisi in un file CSV
-def save_analysis_data(model_name, latent_dim, r2_mean1, r2_std1, mse_mean1, mse_std1, maxse_mean1, maxse_std1, r2_mean2, r2_std2, mse_mean2, mse_std2, maxse_mean2, maxse_std2, r2_z1, r2_z2, r2_Z1Z3, r2_t_Z1, r2_t_Z3, file_path):
-    # Crea un dizionario con i dati da salvare
+def save_decoder_analysis_data(
+    model_name, latent_dim, r2_mean1, r2_std1, mse_mean1, mse_std1, maxse_mean1, maxse_std1, 
+    r2_mean2, r2_std2, mse_mean2, mse_std2, maxse_mean2, maxse_std2, 
+    r2_z1, r2_z2, r2_Z1Z3, r2_t_Z1, r2_t_Z3, ind1 ,ind2 ,ind3 , file_path
+):
+    """
+    Salva i dati di analisi in un file CSV appiattendo i dati annidati per leggibilità in Excel.
+    """
+    # Crea un dizionario appiattito con i dati da salvare
     data = {
-        "model_name": model_name,
-        "latent_dim": latent_dim,
-        "r2_mean1": r2_mean1,
-        "r2_std1": r2_std1,
-        "mse_mean1": mse_mean1,
-        "mse_std1": mse_std1,
-        "maxse_mean1": maxse_mean1,
-        "maxse_std1": maxse_std1,
-        "r2_mean2": r2_mean2,
-        "r2_std2": r2_std2,
-        "mse_mean2": mse_mean2,
-        "mse_std2": mse_std2,
-        "maxse_mean2": maxse_mean2,
-        "maxse_std2": maxse_std2,
-        "r2_z1": r2_z1,
-        "r2_z2": r2_z2,
-        "r2_Z1Z3": r2_Z1Z3,
-        "r2_t_Z1" : r2_t_Z1,
-        "r2_t_Z3" : r2_t_Z3
+        "Model Name": model_name,
+        "Latent Dim": latent_dim,
+        "Z1 R2 Mean": r2_mean1,
+        "Z1 R2 Std": r2_std1,
+        "Z1 MSE Mean": mse_mean1,
+        "Z1 MSE Std": mse_std1,
+        "Z1 MaxSE Mean": maxse_mean1,
+        "Z1 MaxSE Std": maxse_std1,
+        "Z3 R2 Mean": r2_mean2,
+        "Z3 R2 Std": r2_std2,
+        "Z3 MSE Mean": mse_mean2,
+        "Z3 MSE Std": mse_std2,
+        "Z3 MaxSE Mean": maxse_mean2,
+        "Z3 MaxSE Std": maxse_std2,
+        "PCA R2 Z1 PC": r2_z1,
+        "Varianzce Explained Z1": ind1,
+        "PCA R2 Z3 PC": r2_z2,
+        "Varianzce Explained Z3": ind2,
+        "PCA R2 (Z1+Z3) PC": r2_Z1Z3,
+        "Variance Explained (Z1+Z3)": ind3,
+        "PCA R2 Time Signal Z1": r2_t_Z1,
+        "PCA R2 Time Signal Z3": r2_t_Z3
     }
     
     # Controlla se il file esiste già
@@ -213,6 +223,43 @@ def save_analysis_data(model_name, latent_dim, r2_mean1, r2_std1, mse_mean1, mse
     # Salva il dataframe in un file CSV
     df.to_csv(file_path, index=False)
     print(f"Analysis data saved to {file_path}")
+
+
+def save_encoder_analysis_data(
+    model_name, latent_dim, r2_mean, r2_std, mse_mean, mse_std, maxse_mean, maxse_std, 
+    r2_z2, r2_t_Z2, ind1, file_path
+):
+    """
+    Salva i dati di analisi in un file CSV appiattendo i dati annidati per leggibilità in Excel.
+    """
+    # Crea un dizionario appiattito con i dati da salvare
+    data = {
+        "Model Name": model_name,
+        "Latent Dim": latent_dim,
+        "Z2 R2 Mean": r2_mean,
+        "Z2 R2 Std": r2_std,
+        "Z2 MSE Mean": mse_mean,
+        "Z2 MSE Std": mse_std,
+        "Z2 MaxSE Mean": maxse_mean,
+        "Z2 MaxSE Std": maxse_std,
+        "PCA R2 Z2 PC": r2_z2,
+        "Varianzce Explained Z2": ind1,
+        "PCA R2 Time Signal Z2": r2_t_Z2
+    }
+    
+    # Controlla se il file esiste già
+    if os.path.exists(file_path):
+        # Se esiste, carica il dataframe e aggiungi la nuova riga
+        df = pd.read_csv(file_path)
+        df = pd.concat([df, pd.DataFrame([data])], ignore_index=True)
+    else:
+        # Se non esiste, crea un nuovo dataframe
+        df = pd.DataFrame([data])
+    
+    # Salva il dataframe in un file CSV
+    df.to_csv(file_path, index=False)
+    print(f"Analysis data saved to {file_path}")
+
 
 
 
@@ -282,17 +329,33 @@ def latent_variables(vae_model, mean_vectors, logvar_vectors, dataloader, device
     # Usa mean_vectors e logvar_vectors già calcolati
     all_mu = torch.tensor(mean_vectors)
     all_sigma = torch.exp(0.5 * torch.tensor(logvar_vectors))
+    
+    ratios = abs(all_sigma / all_mu)
 
-    ratios = abs(all_mu / all_sigma)
+    n_dimensions = ratios.shape[1]
+    n_cols = 2  # Numero di colonne
+    n_rows = (n_dimensions + n_cols - 1) // n_cols  # Calcola righe necessarie
+    
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(12, 4 * n_rows))
+    axes = axes.flatten()  # Appiattisci l'array degli assi per accedere in un ciclo
 
-    fig, axes = plt.subplots(ratios.shape[1], 1, figsize=(10, 5 * ratios.shape[1]))
-    for i in range(ratios.shape[1]):  # Per ogni dimensione latente
-        axes[i].hist(ratios[:, i].numpy(), bins=50, alpha=0.7, label=f'Dimensione {i+1}')
-        axes[i].set_xlabel('Rapporto (mean / sigma)')
-        axes[i].set_ylabel('Frequenza')
-        axes[i].set_title(f'Istogramma del Rapporto Mean / Sigma per la Dimensione {i+1}')
-        axes[i].legend()
-        axes[i].grid(True)
+    for i in range(n_dimensions):  # Per ogni dimensione latente
+        ax = axes[i]
+        data = ratios[:, i].numpy()
+        
+        ax.hist(data, bins=50, alpha=0.7, color=f'C{i}', label=f'Dimensione {i+1}')
+        ax.axvline(np.mean(data), color='red', linestyle='--', label='Media')
+        ax.set_xlabel('Rapporto (sigma / mean)')
+        ax.set_ylabel('Frequenza')
+        ax.set_title(f'Dimensione {i+1}')
+        ax.legend()
+        ax.grid(True)
+        ax.set_xlim(0, min(100, np.max(data)))  # Riduci dinamica se necessario
+
+    # Nascondi gli assi inutilizzati
+    for j in range(n_dimensions, len(axes)):
+        axes[j].axis('off')
+
     plt.tight_layout()
     plt.show()
 
