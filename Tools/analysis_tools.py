@@ -227,8 +227,7 @@ def save_decoder_analysis_data(
 
 def save_encoder_analysis_data(
     model_name, latent_dim, r2_mean, r2_std, mse_mean, mse_std, maxse_mean, maxse_std, 
-    r2_z2, r2_t_Z2, ind1, file_path
-):
+    r2_z2, r2_t_Z2, ind1, file_path ):
     """
     Salva i dati di analisi in un file CSV appiattendo i dati annidati per leggibilità in Excel.
     """
@@ -428,4 +427,57 @@ def pca_r2_analysis_embeddings(true_embeddings, reconstructed_embeddings, n_comp
     plt.show()
 
     return r2_per_component, explained_variance
+
+
+def load_encoder_analysis_data(folder_path):
+    """
+    Carica i file CSV dalla cartella specificata e restituisce un unico DataFrame.
+    
+    Parametri:
+    - folder_path: percorso della cartella contenente i file CSV degli encoder.
+    
+    Ritorna:
+    - DataFrame con tutti i dati uniti.
+    """
+    all_data = []
+    
+    # Itera su tutti i file nella cartella
+    for file_name in os.listdir(folder_path):
+        if file_name.endswith(".csv"):
+            file_path = os.path.join(folder_path, file_name)
+            print(f"Caricando dati da: {file_path}")
+            df = pd.read_csv(file_path)
+            all_data.append(df)
+    
+    # Combina tutti i DataFrame in uno solo
+    combined_data = pd.concat(all_data, ignore_index=True)
+    print(f"Totale modelli caricati: {len(combined_data)}")
+    return combined_data
+
+def load_decoder_analysis_data(folder_path):
+    """
+    Carica i file CSV dalla cartella specificata e restituisce un unico DataFrame.
+    
+    Parametri:
+    - folder_path: percorso della cartella contenente i file CSV dei decoder.
+    
+    Ritorna:
+    - DataFrame con tutti i dati uniti.
+    """
+    all_data = []
+    
+    # Itera su tutti i file nella cartella
+    for file_name in os.listdir(folder_path):
+        if file_name.endswith(".csv"):
+            file_path = os.path.join(folder_path, file_name)
+            print(f"Caricando dati da: {file_path}")
+            df = pd.read_csv(file_path)
+            all_data.append(df)
+    
+    # Combina tutti i DataFrame in uno solo
+    combined_data = pd.concat(all_data, ignore_index=True)
+    print(f"Totale modelli caricati: {len(combined_data)}")
+    return combined_data
+
+
 
