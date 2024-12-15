@@ -8,6 +8,8 @@ import pandas as pd
 import os
 import json
 
+
+#Funzioni per analizzare i risultati di training
 def reconstruct_signal_from_embedding(embedding, embedding_dim, delay):
     """
     Ricostruisce il segnale originale da un embedding ritardato.
@@ -177,6 +179,8 @@ def plot_signal_and_pcs(original_signal, embedding, n_pcs=3, n_delays=5, delay_s
 
     return pcs_embedding
 
+
+#Funzioni per salvare i dati di analisi in un file CSV
 def save_decoder_analysis_data(
     model_name, latent_dim, r2_mean1, r2_std1, mse_mean1, mse_std1, maxse_mean1, maxse_std1, 
     r2_mean2, r2_std2, mse_mean2, mse_std2, maxse_mean2, maxse_std2, 
@@ -429,6 +433,9 @@ def pca_r2_analysis_embeddings(true_embeddings, reconstructed_embeddings, n_comp
     return r2_per_component, explained_variance
 
 
+
+
+# Funzioni per caricare i dati di analisi da file CSV
 def load_encoder_analysis_data(folder_path):
     """
     Carica i file CSV dalla cartella specificata e restituisce un unico DataFrame.
@@ -478,6 +485,223 @@ def load_decoder_analysis_data(folder_path):
     combined_data = pd.concat(all_data, ignore_index=True)
     print(f"Totale modelli caricati: {len(combined_data)}")
     return combined_data
+
+
+# Funzioni per analizzare il decoder
+
+def plot_encoder_metric(data, metric, title, ylabel):
+    """
+    Crea un plot di una metrica (es. R2 Mean) per ogni encoder, utilizzando il nome del modello sull'asse X.
+    
+    Parametri:
+    - data: DataFrame contenente i dati degli encoder.
+    - metric: Nome della colonna nel DataFrame che rappresenta la metrica da plottare.
+    - title: Titolo del grafico.
+    - ylabel: Etichetta dell'asse Y.
+    """
+    # Converti i nomi dei modelli in stringhe per evitare errori di ordinamento
+    data["Model Name"] = data["Model Name"].astype(str)
+    
+    # Ordina i modelli alfabeticamente per chiarezza (opzionale)
+    data = data.sort_values(by="Model Name")
+
+    # Estrai i nomi dei modelli e i valori della metrica
+    model_names = data["Model Name"]
+    metric_values = data[metric]
+    
+    # Crea il plot
+    plt.figure(figsize=(12, 6))
+    plt.bar(model_names, metric_values, color="skyblue", edgecolor="black")
+    plt.title(title)
+    plt.xlabel("Model Name")
+    plt.ylabel(ylabel)
+    plt.xticks(rotation=45, ha="right", fontsize=10)
+    plt.tight_layout()
+    plt.grid(axis="y", linestyle="--", alpha=0.7)
+    plt.show()
+
+def plot_z_metrics(data, r2_col, mse_col, maxse_col, title):
+    """
+    Crea un plot con barre sovrapposte per R2, MSE e MaxSE per ogni encoder.
+    I valori sono normalizzati per gestire scale diverse.
+    
+    Parametri:
+    - data: DataFrame con i dati degli encoder.
+    - r2_col: Nome della colonna per R2.
+    - mse_col: Nome della colonna per MSE.
+    - maxse_col: Nome della colonna per MaxSE.
+    - title: Titolo del grafico.
+    """
+    # Normalizza i dati per portare le metriche tra 0 e 1
+    data["R2 Normalized"] = (data[r2_col] - data[r2_col].min()) / (data[r2_col].max() - data[r2_col].min())
+    data["MSE Normalized"] = (data[mse_col] - data[mse_col].min()) / (data[mse_col].max() - data[mse_col].min())
+    data["MaxSE Normalized"] = (data[maxse_col] - data[maxse_col].min()) / (data[maxse_col].max() - data[maxse_col].min())
+
+    # Etichette sull'asse X
+    model_names = data["Model Name"].astype(str)
+    x = np.arange(len(model_names))
+    
+    # Larghezza delle barre
+    bar_width = 0.3
+    # Crea il plot
+    plt.figure(figsize=(12, 6))
+    
+    # Aggiungi le barre per ciascuna metrica
+    plt.bar(x - bar_width, data["R2 Normalized"], bar_width, alpha=0.7, label="R2 (Normalized)", color="blue")
+    plt.bar(x, data["MSE Normalized"], bar_width, alpha=0.7, label="MSE (Normalized)", color="orange")
+    plt.bar(x + bar_width, data["MaxSE Normalized"], bar_width, alpha=0.7, label="MaxSE (Normalized)", color="green")
+    
+    # Personalizza il grafico
+    plt.title(title)
+    plt.xlabel("Model Name")
+    plt.ylabel("Normalized Metric Value")
+    plt.xticks(x, model_names, rotation=45, ha="right", fontsize=10)
+    plt.legend()
+    plt.grid(axis="y", linestyle="--", alpha=0.7)
+    plt.tight_layout()
+    plt.show()
+
+import re
+
+def preprocess_array_string(array_string):
+    """
+    Pre-processa una stringa di array per rimuovere il formato np.float32 e correggere il formato.
+    Rimuove spazi, aggiunge virgole e converte in lista di float.
+    
+    Parametri:
+    - array_string: stringa contenente i dati numerici (es. con o senza np.float32).
+    
+    Ritorna:
+    - Lista di float.
+    """
+    try:
+        # 1. Rimuove "np.float32" mantenendo solo il numero tra le parentesi
+        clean_string = re.sub(r'np\.float32\((.*?)\)', r'\1', array_string)
+        
+        # 2. Rimuove newline, spazi multipli e corregge la formattazione
+        clean_string = re.sub(r'\s+', ' ', clean_string.strip())  # Spazi multipli -> singolo spazio
+        clean_string = clean_string.replace(" ", ", ")  # Sostituisce spazi con virgole
+        
+        # 3. Rimuove eventuali virgole doppie create
+        clean_string = clean_string.replace(",,", ",")
+        
+        # 4. Converte in lista di float
+        return [float(value) for value in clean_string.strip('[]').split(',')]
+    except Exception as e:
+        print(f"Errore nel preprocessamento della stringa: {array_string}")
+        print(f"Dettagli dell'errore: {e}")
+        return []
+
+
+
+def plot_pca_r2_and_variance(data, r2_col, variance_col, title):
+    """
+    Crea un plot con linee collegate per ogni modello:
+    - X: Varianza spiegata per ciascun componente principale.
+    - Y: R2 per ciascun componente principale.
+    
+    Ogni modello ha un colore diverso.
+    
+    Parametri:
+    - data: DataFrame con i dati degli encoder.
+    - r2_col: Nome della colonna contenente i R2 per i PC.
+    - variance_col: Nome della colonna contenente la varianza spiegata per i PC.
+    - title: Titolo del grafico.
+    """
+    plt.figure(figsize=(12, 6))
+    
+    for index, row in data.iterrows():
+        model_name = row["Model Name"]
+        
+        # Recupera R2 e varianza spiegata, correggendo eventuali problemi di formato
+        r2_values = np.array(eval(row[r2_col]))
+        variance_values = np.array(preprocess_array_string(row[variance_col]))
+        
+        # Plotta i valori per il modello
+        plt.plot(
+            variance_values, r2_values, marker='o', label=model_name, alpha=0.8
+        )
+
+    
+    # Personalizza il grafico
+    plt.title(title)
+    plt.xlabel("Explained Variance (%)")
+    plt.ylabel("PCA R2")
+    plt.grid(axis="both", linestyle="--", alpha=0.7)
+    plt.legend(title="Models", loc="best", fontsize="small")
+    plt.tight_layout()
+    plt.show()
+
+def preprocess_array_data(data, r2_col, variance_col):
+    """
+    Preprocessa i dati nelle colonne PCA R2 e Variance Explained.
+    
+    Parametri:
+    - data: DataFrame con i dati.
+    - r2_col: Nome della colonna con R2 delle componenti principali.
+    - variance_col: Nome della colonna con la varianza spiegata.
+    
+    Ritorna:
+    - Dizionario con i dati processati per plotting.
+    """
+    processed_data = {"models": [], "r2_values": [], "variance_values": []}
+
+    for index, row in data.iterrows():
+        model_name = row["Model Name"]
+
+        # Trasforma i dati da stringa a lista numerica
+        r2_values = np.array(preprocess_array_string(row[r2_col]))
+        variance_values = np.array(preprocess_array_string(row[variance_col]))
+
+        processed_data["models"].append(model_name)
+        processed_data["r2_values"].append(r2_values)
+        processed_data["variance_values"].append(variance_values)
+    
+    return processed_data
+
+
+def plot_r2_and_variance_separate(data, r2_col, variance_col):
+    """
+    Crea due plot separati per R2 e Varianza spiegata dalle componenti principali.
+    
+    Parametri:
+    - data: DataFrame con i dati.
+    - r2_col: Nome della colonna con R2.
+    - variance_col: Nome della colonna con la varianza spiegata.
+    """
+    processed_data = preprocess_array_data(data, r2_col, variance_col)
+    
+    # Plot per R2
+    plt.figure(figsize=(12, 6))
+    for model_name, r2_values in zip(processed_data["models"], processed_data["r2_values"]):
+        components = np.arange(1, len(r2_values) + 1)
+        plt.plot(components, r2_values, marker='o', linestyle='-', label=model_name, alpha=0.8)
+    
+    plt.title("PCA R² by Principal Component")
+    plt.xlabel("Principal Component Number")
+    plt.ylabel("R² Value")
+    plt.grid(axis="both", linestyle="--", alpha=0.7)
+    plt.legend(title="Models", loc="best", fontsize="small")
+    plt.tight_layout()
+    plt.show()
+
+    # Plot per Varianza spiegata
+    plt.figure(figsize=(12, 6))
+    for model_name, variance_values in zip(processed_data["models"], processed_data["variance_values"]):
+        components = np.arange(1, len(variance_values) + 1)
+        plt.plot(components, variance_values, marker='x', linestyle='--', label=model_name, alpha=0.8)
+    
+    
+    plt.title("Explained Variance by Principal Component")
+    plt.xlabel("Principal Component Number")
+    plt.ylabel("Explained Variance")
+    plt.grid(axis="both", linestyle="--", alpha=0.7)
+    plt.legend(title="Models", loc="best", fontsize="small")
+    plt.tight_layout()
+    plt.show()
+
+
+
 
 
 
