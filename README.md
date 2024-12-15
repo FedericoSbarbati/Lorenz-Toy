@@ -50,3 +50,6 @@ Best Model: Encoder Name- Decoder Name - Noise Alpha,Beta
 
 2-1 e 1 per 3,0
 
+
+Aggiungi indice ricostruzione segnale temporale!!
+

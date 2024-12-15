@@ -179,8 +179,9 @@ def plot_signal_and_pcs(original_signal, embedding, n_pcs=3, n_delays=5, delay_s
 
     return pcs_embedding
 
+import os
+import pandas as pd
 
-#Funzioni per salvare i dati di analisi in un file CSV
 def save_decoder_analysis_data(
     model_name, latent_dim, r2_mean1, r2_std1, mse_mean1, mse_std1, maxse_mean1, maxse_std1, 
     r2_mean2, r2_std2, mse_mean2, mse_std2, maxse_mean2, maxse_std2, 
@@ -215,16 +216,10 @@ def save_decoder_analysis_data(
         "PCA R2 Time Signal Z3": r2_t_Z3
     }
     
-    # Controlla se il file esiste già
-    if os.path.exists(file_path):
-        # Se esiste, carica il dataframe e aggiungi la nuova riga
-        df = pd.read_csv(file_path)
-        df = pd.concat([df, pd.DataFrame([data])], ignore_index=True)
-    else:
-        # Se non esiste, crea un nuovo dataframe
-        df = pd.DataFrame([data])
+    # Crea un nuovo dataframe con i dati
+    df = pd.DataFrame([data])
     
-    # Salva il dataframe in un file CSV
+    # Sovrascrive il file CSV esistente
     df.to_csv(file_path, index=False)
     print(f"Analysis data saved to {file_path}")
 
@@ -250,16 +245,10 @@ def save_encoder_analysis_data(
         "PCA R2 Time Signal Z2": r2_t_Z2
     }
     
-    # Controlla se il file esiste già
-    if os.path.exists(file_path):
-        # Se esiste, carica il dataframe e aggiungi la nuova riga
-        df = pd.read_csv(file_path)
-        df = pd.concat([df, pd.DataFrame([data])], ignore_index=True)
-    else:
-        # Se non esiste, crea un nuovo dataframe
-        df = pd.DataFrame([data])
+    # Crea un nuovo dataframe con i dati
+    df = pd.DataFrame([data])
     
-    # Salva il dataframe in un file CSV
+    # Sovrascrive il file CSV esistente
     df.to_csv(file_path, index=False)
     print(f"Analysis data saved to {file_path}")
 
@@ -447,17 +436,23 @@ def load_encoder_analysis_data(folder_path):
     - DataFrame con tutti i dati uniti.
     """
     all_data = []
+    loaded_files = set()  # Set per tenere traccia dei file già caricati
     
     # Itera su tutti i file nella cartella
     for file_name in os.listdir(folder_path):
         if file_name.endswith(".csv"):
             file_path = os.path.join(folder_path, file_name)
-            print(f"Caricando dati da: {file_path}")
-            df = pd.read_csv(file_path)
-            all_data.append(df)
+            if file_path not in loaded_files:  # Controlla se il file è già stato caricato
+                print(f"Caricando dati da: {file_path}")
+                df = pd.read_csv(file_path)
+                all_data.append(df)
+                loaded_files.add(file_path)  # Aggiungi il file al set dei file caricati
     
     # Combina tutti i DataFrame in uno solo
     combined_data = pd.concat(all_data, ignore_index=True)
+    # Rimuove i duplicati
+    combined_data = combined_data.drop_duplicates()
+
     print(f"Totale modelli caricati: {len(combined_data)}")
     return combined_data
 
@@ -533,7 +528,7 @@ def plot_z_metrics(data, r2_col, mse_col, maxse_col, title):
     - title: Titolo del grafico.
     """
     # Normalizza i dati per portare le metriche tra 0 e 1
-    data["R2 Normalized"] = (data[r2_col] - data[r2_col].min()) / (data[r2_col].max() - data[r2_col].min())
+    data["R2 Normalized"] = data[r2_col]  #(data[r2_col] - data[r2_col].min()) / (data[r2_col].max() - data[r2_col].min())
     data["MSE Normalized"] = (data[mse_col] - data[mse_col].min()) / (data[mse_col].max() - data[mse_col].min())
     data["MaxSE Normalized"] = (data[maxse_col] - data[maxse_col].min()) / (data[maxse_col].max() - data[maxse_col].min())
 
@@ -547,7 +542,7 @@ def plot_z_metrics(data, r2_col, mse_col, maxse_col, title):
     plt.figure(figsize=(12, 6))
     
     # Aggiungi le barre per ciascuna metrica
-    plt.bar(x - bar_width, data["R2 Normalized"], bar_width, alpha=0.7, label="R2 (Normalized)", color="blue")
+    plt.bar(x - bar_width, data["R2 Normalized"], bar_width, alpha=0.7, label="R2", color="blue")
     plt.bar(x, data["MSE Normalized"], bar_width, alpha=0.7, label="MSE (Normalized)", color="orange")
     plt.bar(x + bar_width, data["MaxSE Normalized"], bar_width, alpha=0.7, label="MaxSE (Normalized)", color="green")
     
