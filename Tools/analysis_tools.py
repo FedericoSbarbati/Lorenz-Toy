@@ -560,32 +560,37 @@ import re
 
 def preprocess_array_string(array_string):
     """
-    Pre-processa una stringa di array per rimuovere il formato np.float32 e correggere il formato.
-    Rimuove spazi, aggiunge virgole e converte in lista di float.
+    Preprocessa una stringa di array per correggere formati irregolari,
+    rimuovere prefissi 'np.float32', aggiungere virgole dove mancano
+    e convertire in lista di float.
     
     Parametri:
-    - array_string: stringa contenente i dati numerici (es. con o senza np.float32).
+    - array_string: stringa contenente i dati numerici
     
     Ritorna:
     - Lista di float.
     """
     try:
-        # 1. Rimuove "np.float32" mantenendo solo il numero tra le parentesi
-        clean_string = re.sub(r'np\.float32\((.*?)\)', r'\1', array_string)
+        # 1. Rimuove 'np.float32' e altre parentesi esterne
+        clean_string = re.sub(r"np\.float32\((.*?)\)", r"\1", array_string)
         
-        # 2. Rimuove newline, spazi multipli e corregge la formattazione
-        clean_string = re.sub(r'\s+', ' ', clean_string.strip())  # Spazi multipli -> singolo spazio
-        clean_string = clean_string.replace(" ", ", ")  # Sostituisce spazi con virgole
+        # 2. Rimuove newline e spazi multipli
+        clean_string = re.sub(r"\s+", " ", clean_string.strip())
         
-        # 3. Rimuove eventuali virgole doppie create
-        clean_string = clean_string.replace(",,", ",")
+        # 3. Sostituisce spazi con virgole (separazione dei valori)
+        clean_string = clean_string.replace(" ", ", ")
         
-        # 4. Converte in lista di float
-        return [float(value) for value in clean_string.strip('[]').split(',')]
+        # 4. Rimuove parentesi quadre esterne se presenti
+        clean_string = clean_string.strip("[]")
+        
+        # 5. Converte in lista di float
+        return [float(value) for value in clean_string.split(",") if value.strip()]
+    
     except Exception as e:
         print(f"Errore nel preprocessamento della stringa: {array_string}")
         print(f"Dettagli dell'errore: {e}")
         return []
+
 
 
 
