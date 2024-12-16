@@ -532,6 +532,7 @@ def plot_z_metrics(data, r2_col, mse_col, maxse_col, title):
     data["MSE Normalized"] = (data[mse_col] - data[mse_col].min()) / (data[mse_col].max() - data[mse_col].min())
     data["MaxSE Normalized"] = (data[maxse_col] - data[maxse_col].min()) / (data[maxse_col].max() - data[maxse_col].min())
 
+    data = order_dataset_by_model(data)
     # Etichette sull'asse X
     model_names = data["Model Name"].astype(str)
     x = np.arange(len(model_names))
@@ -699,6 +700,18 @@ def plot_r2_and_variance_separate(data, r2_col, variance_col):
     plt.legend(title="Models", loc="best", fontsize="small")
     plt.tight_layout()
     plt.show()
+
+def order_dataset_by_model(data):
+    # Extract model information
+    data[['Model', 'A', 'B']] = data['Model Name'].str.extract(r'(\d+D),(\d+),(\d+)')
+    # Convert A and B to integers
+    data['A'] = data['A'].astype(int)
+    data['B'] = data['B'].astype(int)
+    # Sort by B first, then by A
+    data = data.sort_values(by=['B', 'A'])
+    # Drop the temporary columns
+    data = data.drop(columns=['Model', 'A', 'B'])
+    return data
 
 
 

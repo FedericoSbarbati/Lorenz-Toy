@@ -376,5 +376,36 @@
                 "min_lr": 0.0001
             }
         }
+    },
+    "5D,9,5": {
+        "layer_dims": [
+            20,
+            15,
+            10,
+            5
+        ],
+        "latent_dim": 5,
+        "beta_method": "sigmoid",
+        "beta_value": 0.01,
+        "kl_annealing_epochs": 700,
+        "decay_start": 100,
+        "decay_epoch": 50,
+        "early_stopping": {
+            "patience": 10,
+            "delta": -1
+        },
+        "dataset": "delay15dim20_noise9,5",
+        "batch_size": 32,
+        "optimizer": "Adam",
+        "learning_rate": 0.01,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.5,
+                "patience": 15,
+                "min_lr": 0.0001
+            }
+        }
     }
 }
