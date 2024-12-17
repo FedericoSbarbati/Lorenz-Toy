@@ -1,55 +1,27 @@
-Idea Behind this branch:
+## Mathematical Framework
 
-1. Train the encoder to reconstruct clearly Z2 (y1) from it's embedding to have a meaningfull rappresentatio in the latent space.
+### Stochastic Lorenz System with Noise
+We simulate the **stochastic Lorenz system** with added intrinsic noise, modeled as Wiener processes. The governing equations are:
 
-2. Train a configuration of decoder to reconstruct Z2 and Z3 from the y1 representation learned before.
+\[
+\begin{aligned}
+dz_1 &= 10(z_2 - z_1)dt + \alpha dW_1, \\
+dz_2 &= \left[z_1(28 - z_3) - z_2\right]dt + \alpha dW_2, \\
+dz_3 &= \left[z_1 z_2 - \frac{8}{3}z_3\right]dt + \alpha dW_3,
+\end{aligned}
+\]
 
-3. Make 3 Network with the same encoder.
+where \( z_1, z_2, z_3 \) represent the state variables of the Lorenz system, \( \alpha \) scales the dynamical noise, and \( W_1, W_2, W_3 \) are independent Wiener processes.
 
-3.1) Network to reconstruct both Z1 and Z3
-3.2) Two single decoder focused on reconstructing on variable from Z2
-3.3) Shared decoder with shared layers (weight sharing) and last layer to divide representations of both variables
+---
 
+### Observables with Measurement Noise
+We construct two observables:
 
+1. \( y_1 \) is a noisy scalar measurement derived from \( z_2 \):
+\[
+y_1 = z_2 + \beta \sigma_1,
+\]
+where \( \sigma_1 \sim \mathcal{N}(0, 1) \) is Gaussian noise scaled by \( \beta \).
 
-
-Work in program:
-
-- ENCODER TRAINING:
-
-1) Adjust architecture to create an Encoder and save it's parameters
-2) Create a Dummy decoder for the quality reconstruction of Z2 analysis
-3) Analysisof the meaningfull of the latent rapresentation
-
-Problems:
-
-Lr going down too much before the KLD loss become considerable -> Training loss stuck because of too little lr
--> Have to find a way to implement an increasing lr to use when recon loss is stable and low but KLD is giant
-Noticed that 0.05 for beta is too high and make recon loss go from 0.1 to 0.4 (4 times more) and KL is a little bit
-better -> Try to use a lower beta with sigmoid (KL real value about 3.0) 
-
-ENCODER MODELLO 2-1: NON ELIMINARE è il MIGLIORE (Noise 3,0, beta max = 0.01) 
-Prova a mantenere la struttura e far variare i parametri di Noise
-
-
-- DECODER TRAINING:
-
-Problems:
-
-Loss is just reconstruction and is very low. Order of e-4 -> Adjust learning rate minimum and use a lower minLr
-Goes on plateau really fast.
-
-1) Define the Decoder Class and the training.
-
-
-
-
-For me:
-
-Best Model: Encoder Name- Decoder Name - Noise Alpha,Beta
-
-2-1 e 1 per 3,0
-
-
-Aggiungi indice ricostruzione segnale temporale!!
-
+2. \( y_2 \) is a multidimensional observable derived f
