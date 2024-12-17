@@ -266,5 +266,34 @@
             }
         },
         "Encoder": "5D,9,5"
+    },
+    "5D,0,10": {
+        "decoder_layers": [
+            5,
+            10,
+            15,
+            20,
+            30,
+            40
+        ],
+        "latent_dim": 5,
+        "early_stopping": {
+            "patience": 10,
+            "delta": -1
+        },
+        "dataset": "delay15dim20_noise0,10",
+        "batch_size": 32,
+        "optimizer": "Adam",
+        "learning_rate": 0.01,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.5,
+                "patience": 10,
+                "min_lr": 1e-07
+            }
+        },
+        "Encoder": "5D,0,10"
     }
 }

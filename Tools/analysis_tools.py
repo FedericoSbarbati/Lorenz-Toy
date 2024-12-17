@@ -527,6 +527,7 @@ def plot_z_metrics(data, r2_col, mse_col, maxse_col, title):
     - maxse_col: Nome della colonna per MaxSE.
     - title: Titolo del grafico.
     """
+    data = order_dataset_by_model(data)
     # Normalizza i dati per portare le metriche tra 0 e 1
     data["R2 Normalized"] = data[r2_col]  #(data[r2_col] - data[r2_col].min()) / (data[r2_col].max() - data[r2_col].min())
     data["MSE Normalized"] = (data[mse_col] - data[mse_col].min()) / (data[mse_col].max() - data[mse_col].min())
