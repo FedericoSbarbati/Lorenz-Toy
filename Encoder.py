@@ -9,16 +9,27 @@ from Tools.training_tools import*
 
 # Creazione del dataset per allenare l'encoder
 class EmbeddedDataset(Dataset):
-    def __init__(self, embedded_data):
-        # Assicurati che i dati siano convertiti in float
-        self.data = torch.tensor(embedded_data, dtype=torch.float32)
+    def __init__(self, projected_hankel):
+        """
+        Dataset per allenare l'encoder. Ogni colonna della matrice proiettata è un esempio.
+
+        Parameters:
+        - projected_hankel (numpy.ndarray): Matrice proiettata di dimensione (r, p-d+1),
+                                             dove r è il numero di polinomi di Legendre.
+        """
+        # Converti le colonne della matrice in righe
+        self.data = torch.tensor(projected_hankel.T, dtype=torch.float32)
 
     def __len__(self):
-        return len(self.data)
+        # Numero di esempi (colonne originali)
+        return self.data.shape[0]
 
     def __getitem__(self, idx):
-        # Restituisce sia l'input che l'output desiderato (che sono identici)
+        # Restituisci il campione e il target
         return self.data[idx], self.data[idx]
+
+
+
     
 
 # Creazione del dataset per allenare il decoder con due insiemi di embedding temporali

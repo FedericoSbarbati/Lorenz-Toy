@@ -165,4 +165,4 @@ def project_on_legendre(hankel_matrix, P):
     projected_data: np.ndarray
         Matrice dei dati proiettati nello spazio a dimensione ridotta.
     """
-    return hankel_matrix.T @ P  # Proiezione sui polinomi di Legendre
+    return hankel_matrix.T @ P  # Proiezione sui polinomi di Legendre trasposta
