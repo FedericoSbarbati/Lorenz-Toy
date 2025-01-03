@@ -268,6 +268,7 @@ def visualize_latent_space_with_pca(model, dataloader, device='cpu', n_component
 # Salvataggio e caricamento del modello
 def save_encoder(encoder, decoder, optimizer, train_data, val_data, epoch, stopped_epoch, encoder_layers, decoder_layers, 
                train_losses, val_losses, recon_losses, kld_losses, effective_kld_losses, beta_values, gradient_history, 
+               denormalizing_params, legendreBasis, H1, H2_1, H2_2,
                output_folder="Models", model_name="vae_model.pth"):
     """
     Salva encoder, decoder, lo stato dell'ottimizzatore e i dati di training/validazione in un unico file.
@@ -285,6 +286,8 @@ def save_encoder(encoder, decoder, optimizer, train_data, val_data, epoch, stopp
     - gradient_history: storico dei gradienti.
     - output_folder: cartella di destinazione.
     - model_name: nome del file di salvataggio.
+    - denormalizing_params: parametri per la denormalizzazione dei dati.
+    - legendreBasis: base di Legendre per la ricostruzione.
     """
     os.makedirs(output_folder, exist_ok=True)
     file_path = os.path.join(output_folder, model_name)
@@ -305,7 +308,12 @@ def save_encoder(encoder, decoder, optimizer, train_data, val_data, epoch, stopp
         'kld_losses': kld_losses,
         'effective_kld_losses': effective_kld_losses,
         'beta_values': beta_values,
-        'gradient_history': gradient_history
+        'gradient_history': gradient_history,
+        'denormalizing_params': denormalizing_params,
+        'P': legendreBasis,
+        'H1': H1,
+        'H2_1': H2_1,
+        'H2_2': H2_2
     }, file_path)
 
     print(f"Model saved to {file_path}")

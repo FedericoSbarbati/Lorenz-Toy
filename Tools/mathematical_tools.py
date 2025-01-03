@@ -1,5 +1,6 @@
 from sklearn.neighbors import NearestNeighbors
 from scipy.special import legendre
+from numpy.linalg import pinv
 import numpy as np
 import math
 
@@ -201,4 +202,41 @@ def denormalize_columns(normalized_matrix, min_vals, max_vals):
     - denormalized_matrix (numpy.ndarray): Matrice denormalizzata.
     """
     return normalized_matrix * (max_vals - min_vals) + min_vals
+
+import numpy as np
+
+def diagonal_mean(hankel_matrix):
+    """
+    Ripristina una serie temporale dalla matrice di Hankel originale
+    utilizzando la media lungo le diagonali.
+
+    Parametri:
+        hankel_matrix (np.ndarray): Matrice di Hankel originale di dimensioni (d x (p-d+1)).
+
+    Ritorna:
+        np.ndarray: Serie temporale ricostruita.
+    """
+    # Ottieni le dimensioni della matrice di Hankel
+    d, n = hankel_matrix.shape
+
+    # Prepara un array per contenere la serie temporale ricostruita
+    serie_length = d + n - 1  # Lunghezza totale della serie temporale
+    serie_temporale = np.zeros(serie_length)
+    conteggi = np.zeros(serie_length)  # Per calcolare la media lungo le diagonali
+
+    # Somma i valori lungo le diagonali
+    for i in range(d):
+        for j in range(n):
+            serie_temporale[i + j] += hankel_matrix[i, j]
+            conteggi[i + j] += 1
+
+    # Calcola la media per ciascun punto temporale
+    serie_temporale /= conteggi
+
+    return serie_temporale
+
+
+
+
+
 

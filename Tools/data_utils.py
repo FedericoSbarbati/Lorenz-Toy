@@ -44,15 +44,14 @@ class SimulationData:
         self.projected_H2_2 = None
 
         # Normalization coefficents
-        self.mean_h1 = None
-        self.std_h1 = None
+        self.min_h1 = None
+        self.max_h1 = None
 
-        self.mean_h2_1 = None
-        self.std_h2_1 = None
+        self.min_h2_1 = None
+        self.max_h2_1 = None
 
-        self.mean_h2_2 = None
-        self.std_h2_2 = None
-
+        self.min_h2_2 = None
+        self.max_h2_2 = None
 
     # Simulation methods
     def run_simulation(self, lorenz_function):
@@ -150,9 +149,9 @@ class SimulationData:
 
     def normalize_legendreProjection(self):
 
-        self.projected_H1, self.mean_h1, self.std_h1 = normalize_columns(self.projected_H1) 
-        self.projected_H2_1, self.mean_h2_1, self.std_h2_1 = normalize_columns(self.projected_H2_1)
-        self.projected_H2_2, self.mean_h2_2, self.std_h2_2 = normalize_columns(self.projected_H2_2)
+        self.projected_H1, self.min_h1, self.max_h1 = normalize_columns(self.projected_H1) 
+        self.projected_H2_1, self.min_h2_1, self.max_h2_1 = normalize_columns(self.projected_H2_1)
+        self.projected_H2_2, self.min_h2_2, self.max_h2_2 = normalize_columns(self.projected_H2_2)
     
 
     # Methods to save and load data
@@ -198,12 +197,12 @@ class SimulationData:
             "projected_H1": self.projected_H1.tolist() if self.projected_H1 is not None else None,
             "projected_H2_1": self.projected_H2_1.tolist() if self.projected_H2_1 is not None else None,
             "projected_H2_2": self.projected_H2_2.tolist() if self.projected_H2_2 is not None else None,
-            "mean_h1": self.mean_h1.tolist() if self.mean_h1 is not None else None,
-            "std_h1": self.std_h1.tolist() if self.std_h1 is not None else None,
-            "mean_h2_1": self.mean_h2_1.tolist() if self.mean_h2_1 is not None else None,
-            "std_h2_1": self.std_h2_1.tolist() if self.std_h2_1 is not None else None,
-            "mean_h2_2": self.mean_h2_2.tolist() if self.mean_h2_2 is not None else None,
-            "std_h2_2": self.std_h2_2.tolist() if self.std_h2_2 is not None else None
+            "min_h1": self.min_h1.tolist() if self.min_h1 is not None else None,
+            "max_h1": self.max_h1.tolist() if self.max_h1 is not None else None,
+            "min_h2_1": self.min_h2_1.tolist() if self.min_h2_1 is not None else None,
+            "max_h2_1": self.max_h2_1.tolist() if self.max_h2_1 is not None else None,
+            "min_h2_2": self.min_h2_2.tolist() if self.min_h2_2 is not None else None,
+            "max_h2_2": self.max_h2_2.tolist() if self.max_h2_2 is not None else None
         }
         with open(file_path, "w") as f:
             json.dump(data, f)
@@ -257,12 +256,12 @@ class SimulationData:
         instance.projected_H1 = np.array(data["projected_H1"])
         instance.projected_H2_1 = np.array(data["projected_H2_1"])
         instance.projected_H2_2 = np.array(data["projected_H2_2"])
-        instance.mean_h1 = np.array(data["mean_h1"])
-        instance.std_h1 = np.array(data["std_h1"])
-        instance.mean_h2_1 = np.array(data["mean_h2_1"])
-        instance.std_h2_1 = np.array(data["std_h2_1"])
-        instance.mean_h2_2 = np.array(data["mean_h2_2"])
-        instance.std_h2_2 = np.array(data["std_h2_2"])
+        instance.min_h1 = np.array(data["min_h1"])
+        instance.max_h1 = np.array(data["max_h1"])
+        instance.min_h2_1 = np.array(data["min_h2_1"])
+        instance.max_h2_1 = np.array(data["max_h2_1"])
+        instance.min_h2_2 = np.array(data["min_h2_2"])
+        instance.max_h2_2 = np.array(data["max_h2_2"])
 
         return instance
     
