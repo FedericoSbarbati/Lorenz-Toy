@@ -1,12 +1,11 @@
 {
-    "5D,0,10.pth": {
+    "Prova": {
         "layer_dims": [
             10,
             7,
-            5,
-            3
+            5
         ],
-        "latent_dim": 3,
+        "latent_dim": 5,
         "beta_method": "sigmoid",
         "beta_value": 0.01,
         "kl_annealing_epochs": 700,
@@ -16,7 +15,7 @@
             "patience": 10,
             "delta": -1
         },
-        "dataset": "delay15dim20,0_noise10,0",
+        "dataset": "delay15dim20,10_noise0,0",
         "batch_size": 32,
         "optimizer": "Adam",
         "learning_rate": 0.01,

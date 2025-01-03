@@ -166,3 +166,39 @@ def project_on_legendre(hankel_matrix, P):
         Matrice dei dati proiettati nello spazio a dimensione ridotta.
     """
     return hankel_matrix.T @ P  # Proiezione sui polinomi di Legendre trasposta
+
+def normalize_columns(matrix):
+    """
+    Normalizza ogni colonna della matrice nell'intervallo [0, 1].
+    
+    Parameters:
+    - matrix (numpy.ndarray): Matrice da normalizzare (dimensione r x (p-d+1)).
+    
+    Returns:
+    - normalized_matrix (numpy.ndarray): Matrice normalizzata nell'intervallo [0, 1].
+    - min_vals (numpy.ndarray): Minimo di ogni colonna (dimensione 1 x (p-d+1)).
+    - max_vals (numpy.ndarray): Massimo di ogni colonna (dimensione 1 x (p-d+1)).
+    """
+    # Calcola minimo e massimo per ogni colonna
+    min_vals = matrix.min(axis=0, keepdims=True)
+    max_vals = matrix.max(axis=0, keepdims=True)
+    
+    # Normalizza ogni colonna
+    normalized_matrix = (matrix - min_vals) / (max_vals - min_vals)
+    
+    return normalized_matrix, min_vals, max_vals
+
+def denormalize_columns(normalized_matrix, min_vals, max_vals):
+    """
+    Denormalizza una matrice utilizzando i valori di minimo e massimo salvati.
+    
+    Parameters:
+    - normalized_matrix (numpy.ndarray): Matrice normalizzata.
+    - min_vals (numpy.ndarray): Minimo di ogni colonna.
+    - max_vals (numpy.ndarray): Massimo di ogni colonna.
+    
+    Returns:
+    - denormalized_matrix (numpy.ndarray): Matrice denormalizzata.
+    """
+    return normalized_matrix * (max_vals - min_vals) + min_vals
+

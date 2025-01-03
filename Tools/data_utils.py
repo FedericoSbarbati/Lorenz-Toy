@@ -26,9 +26,6 @@ class SimulationData:
         self.y1 = None
         self.y2 = None
 
-        self.y1_norm = None
-        self.y2_norm = None
-
         self.y1_embedding = None
         self.y2_embedding_1 = None
         self.y2_embedding_2 = None
@@ -45,6 +42,16 @@ class SimulationData:
         self.projected_H1 = None
         self.projected_H2_1 = None
         self.projected_H2_2 = None
+
+        # Normalization coefficents
+        self.mean_h1 = None
+        self.std_h1 = None
+
+        self.mean_h2_1 = None
+        self.std_h2_1 = None
+
+        self.mean_h2_2 = None
+        self.std_h2_2 = None
 
 
     # Simulation methods
@@ -68,14 +75,14 @@ class SimulationData:
             raise ValueError("Gli osservabili y1 e y2 non sono stati generati!")
 
         # Normalizza y1
-        self.y1_norm = self.normalize_series(self.y1)
+        self.y1 = self.normalize_series(self.y1)
         
-        # Inizializza y2_norm come array vuoto della stessa forma di y2
-        self.y2_norm = np.zeros_like(self.y2)  # <--- Inizializzazione necessaria
+        # Inizializza y2 se non è stato fatto
+        #self.y2 = np.zeros_like(self.y2)  # <--- Inizializzazione necessaria
         
         # Normalizza le colonne di y2
-        self.y2_norm[:, 0] = self.normalize_series(self.y2[:, 0])
-        self.y2_norm[:, 1] = self.normalize_series(self.y2[:, 1])
+        self.y2[:, 0] = self.normalize_series(self.y2[:, 0])
+        self.y2[:, 1] = self.normalize_series(self.y2[:, 1])
 
     def generate_observables(self):
         """
@@ -107,10 +114,10 @@ class SimulationData:
         Crea gli embedding a ritardo temporale per z1, z2, z3.
         CAMBIA QUA PER NORMALIZZARE O MENO
         """
-        self.y1_embedding = self.create_time_delay_embedding(self.y1_norm, self.tau, self.embedding_dim)
+        self.y1_embedding = create_time_delay_embedding(self.y1, self.tau, self.embedding_dim)
         # Supponiamo che y2 sia una matrice con shape (n_steps, n_dimensions)
-        y2_component_1 = self.y2_norm[:, 0]
-        y2_component_2 = self.y2_norm[:, 1]
+        y2_component_1 = self.y2[:, 0]
+        y2_component_2 = self.y2[:, 1]
 
         self.y2_embedding_1 = create_time_delay_embedding(y2_component_1, self.tau, self.embedding_dim)
         self.y2_embedding_2 = create_time_delay_embedding(y2_component_2, self.tau, self.embedding_dim)
@@ -141,17 +148,13 @@ class SimulationData:
         self.projected_H2_2 = self.projected_H2_2.T
 
 
+    def normalize_legendreProjection(self):
+
+        self.projected_H1, self.mean_h1, self.std_h1 = normalize_columns(self.projected_H1) 
+        self.projected_H2_1, self.mean_h2_1, self.std_h2_1 = normalize_columns(self.projected_H2_1)
+        self.projected_H2_2, self.mean_h2_2, self.std_h2_2 = normalize_columns(self.projected_H2_2)
     
-    @staticmethod
-    def create_time_delay_embedding(data, delay, dimension):
-        """
-        Crea un embedding a ritardo temporale per una serie temporale.
-        """
-        return np.array([
-            data[i: i + delay * dimension: delay]
-            for i in range(len(data) - delay * (dimension - 1))
-        ])
-    
+
     # Methods to save and load data
     def generate_filename(self):
         """
@@ -185,8 +188,6 @@ class SimulationData:
             "trajectory": self.trajectory.tolist(),
             "y1": self.y1.tolist(),
             "y2": self.y2.tolist(),
-            "y1_norm": self.y1_norm.tolist(),
-            "y2_norm": self.y2_norm.tolist(),
             "y1_embedding": self.y1_embedding.tolist() if self.y1_embedding is not None else None,
             "y2_embedding_1": self.y2_embedding_1.tolist() if self.y2_embedding_1 is not None else None,
             "y2_embedding_2": self.y2_embedding_2.tolist() if self.y2_embedding_2 is not None else None,
@@ -197,6 +198,12 @@ class SimulationData:
             "projected_H1": self.projected_H1.tolist() if self.projected_H1 is not None else None,
             "projected_H2_1": self.projected_H2_1.tolist() if self.projected_H2_1 is not None else None,
             "projected_H2_2": self.projected_H2_2.tolist() if self.projected_H2_2 is not None else None,
+            "mean_h1": self.mean_h1.tolist() if self.mean_h1 is not None else None,
+            "std_h1": self.std_h1.tolist() if self.std_h1 is not None else None,
+            "mean_h2_1": self.mean_h2_1.tolist() if self.mean_h2_1 is not None else None,
+            "std_h2_1": self.std_h2_1.tolist() if self.std_h2_1 is not None else None,
+            "mean_h2_2": self.mean_h2_2.tolist() if self.mean_h2_2 is not None else None,
+            "std_h2_2": self.std_h2_2.tolist() if self.std_h2_2 is not None else None
         }
         with open(file_path, "w") as f:
             json.dump(data, f)
@@ -240,8 +247,6 @@ class SimulationData:
         instance.trajectory = np.array(data["trajectory"])
         instance.y1 = np.array(data["y1"])
         instance.y2 = np.array(data["y2"])
-        instance.y1_norm = np.array(data["y1_norm"])
-        instance.y2_norm = np.array(data["y2_norm"])
         instance.y1_embedding = np.array(data["y1_embedding"])
         instance.y2_embedding_1 = np.array(data["y2_embedding_1"])
         instance.y2_embedding_2 = np.array(data["y2_embedding_2"])
@@ -252,11 +257,17 @@ class SimulationData:
         instance.projected_H1 = np.array(data["projected_H1"])
         instance.projected_H2_1 = np.array(data["projected_H2_1"])
         instance.projected_H2_2 = np.array(data["projected_H2_2"])
+        instance.mean_h1 = np.array(data["mean_h1"])
+        instance.std_h1 = np.array(data["std_h1"])
+        instance.mean_h2_1 = np.array(data["mean_h2_1"])
+        instance.std_h2_1 = np.array(data["std_h2_1"])
+        instance.mean_h2_2 = np.array(data["mean_h2_2"])
+        instance.std_h2_2 = np.array(data["std_h2_2"])
 
         return instance
     
     
-def generate_input_filename(tau, embedding_dim, alpha, beta , r):
+def generate_input_filename(tau, embedding_dim,r, alpha, beta):
     """
     Genera un nome di file basato sui parametri della simulazione.
     Formato: (tau)dim(embedding_dim)_noise(alpha).json
