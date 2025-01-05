@@ -375,7 +375,13 @@ def load_encoder(path, encoder_class):
         'effective_kld_losses': checkpoint['effective_kld_losses'],
         'beta_values': checkpoint['beta_values'],
         'gradient_history': checkpoint['gradient_history'],
-        'optimizer_state_dict': checkpoint['optimizer_state_dict']
+        'optimizer_state_dict': checkpoint['optimizer_state_dict'],
+        'denormalizing_params': checkpoint['denormalizing_params'],
+        'P': checkpoint['P'],
+        'H1': checkpoint['H1'],
+        'H2_1': checkpoint['H2_1'],
+        'H2_2': checkpoint['H2_2']
+
     }
 
     print(f"Encoder and training info loaded from {path}")
