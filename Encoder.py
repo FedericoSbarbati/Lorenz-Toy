@@ -32,35 +32,44 @@ class EmbeddedDataset(Dataset):
 
     
 
-# Creazione del dataset per allenare il decoder con due insiemi di embedding temporali
-class EmbeddedDatasetforDecoder(Dataset):
-    def __init__(self, embedding_y1, embedding_y2_1, embedding_y2_2):
-        """
-        Dataset per embeddings temporali.
+import torch
+from torch.utils.data import Dataset
 
-        Parametri:
-        - embedding_y1: Array numpy o torch tensor per y1.
-        - embedding_y2_1: Array numpy o torch tensor per y2_1.
-        - embedding_y2_2: Array numpy o torch tensor per y2_2.
+class EmbeddedDatasetforDecoder(Dataset):
+    def __init__(self, reduced_data_y1, reduced_data_y2_1, reduced_data_y2_2):
         """
-        # Assicurati che i dati siano convertiti in torch tensor float32
-        self.embedding_y1 = torch.tensor(embedding_y1, dtype=torch.float32)
-        self.embedding_y2_1 = torch.tensor(embedding_y2_1, dtype=torch.float32)
-        self.embedding_y2_2 = torch.tensor(embedding_y2_2, dtype=torch.float32)
+        Dataset per reduced_datas temporali.
+
+        Parameters:
+        - reduced_data_y1: Array numpy o torch tensor per y1.
+        - reduced_data_y2_1: Array numpy o torch tensor per la prima parte di y2.
+        - reduced_data_y2_2: Array numpy o torch tensor per la seconda parte di y2.
+        """
+        # Converti tutti i dati in tensori di tipo float32
+        self.reduced_data_y1 = torch.tensor(reduced_data_y1.T, dtype=torch.float32)
+        self.reduced_data_y2_1 = torch.tensor(reduced_data_y2_1.T, dtype=torch.float32)
+        self.reduced_data_y2_2 = torch.tensor(reduced_data_y2_2.T, dtype=torch.float32)
+
+        # Assicurati che le dimensioni siano consistenti
+        assert len(self.reduced_data_y1) == len(self.reduced_data_y2_1) == len(self.reduced_data_y2_2), \
+            "Le lunghezze degli reduced_data devono essere uguali."
 
     def __len__(self):
-        # La lunghezza del dataset è quella di embedding_y1
-        return len(self.embedding_y1)
+        # Restituisce il numero totale di esempi
+        return len(self.reduced_data_y1)
 
     def __getitem__(self, idx):
         """
-        Restituisce:
-        - input: embedding_y1 (input della rete)
-        - target: concatenazione di embedding_y2_1 e embedding_y2_2
+        Restituisce un campione dal dataset.
+
+        Returns:
+        - input_data: L'reduced_data temporale di y1 come input.
+        - target_data: La concatenazione degli reduced_data di y2_1 e y2_2 come target.
         """
-        input_data = self.embedding_y1[idx]
-        target_data = torch.cat((self.embedding_y2_1[idx], self.embedding_y2_2[idx]), dim=0)
+        input_data = self.reduced_data_y1[idx]
+        target_data = torch.cat((self.reduced_data_y2_1[idx], self.reduced_data_y2_2[idx]), dim=0)
         return input_data, target_data
+
 
     
 
