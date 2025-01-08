@@ -196,23 +196,36 @@ def plot_results(train_losses, val_losses, recon_losses, kld_losses,effective_kl
     plt.grid()
     plt.show()
 
-def plot_Decoder_results(train_losses, val_losses, gradient_history):
+def plot_Decoder_results(train_losses, val_losses, gradient_history,z1_losses,z3_losses):
+    fig, axes = plt.subplots(1, 2, figsize=(18, 6))
+
     # Plot training loss and validation loss
-    plt.figure(figsize=(10, 6))
-    plt.plot(train_losses, label='Training Loss', color='green')
-    plt.plot(val_losses, label='Validation Loss', color='orange')
-    plt.title('Training Loss vs Validation Loss')
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
-    plt.legend()
-    plt.grid()
+    axes[0].plot(train_losses, label='Training Loss', color='green')
+    axes[0].plot(val_losses, label='Validation Loss', color='orange')
+    axes[0].set_title('Training Loss vs Validation Loss')
+    axes[0].set_xlabel('Epoch')
+    axes[0].set_ylabel('Loss')
+    axes[0].legend()
+    axes[0].grid(True)
+
+    # Plot z1 and z3 losses
+    axes[1].plot(z1_losses, label="z1 Loss")
+    axes[1].plot(z3_losses, label="z3 Loss")
+    axes[1].set_xlabel("Epoch")
+    axes[1].set_ylabel("Loss")
+    axes[1].set_title("z1 and z3 Loss Evolution During Training")
+    axes[1].legend()
+    axes[1].grid(True)
+
+    plt.tight_layout()
     plt.show()
 
     # Carica i gradienti salvati
-    epochs = range(len(gradient_history["decoder"]))
+    epochs = range(len(gradient_history["z1"]))
 
     plt.figure(figsize=(10, 6))
-    plt.plot(epochs, gradient_history["decoder"], label="Decoder Gradient Norm")
+    plt.plot(epochs, gradient_history["z1"], label="z1 Gradient Norm", alpha=0.7)
+    plt.plot(epochs, gradient_history["z3"], label="z3 Gradient Norm", alpha=0.7)
     plt.xlabel("Epoch")
     plt.ylabel("Gradient Norm")
     plt.title("Gradient Norm Evolution During Training")
@@ -221,13 +234,13 @@ def plot_Decoder_results(train_losses, val_losses, gradient_history):
     plt.show()
 
 
+
 def loss_function_vae(recon_x, x, mu, log_var, beta):
     # Ricostruzione loss
     recon_loss = torch.nn.functional.mse_loss(recon_x, x, reduction='sum')
     # Kullback-Leibler divergence
     kld_loss = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
     return recon_loss + beta * kld_loss, recon_loss, kld_loss
-
 
 def visualize_latent_space_with_pca(model, dataloader, device='cpu', n_components=2):
     model.eval()
@@ -404,7 +417,7 @@ def load_encoder(path, encoder_class):
 
 
 
-def save_decoder(decoder, train_losses, val_losses, train_data, val_data, epoch, stopped_epoch, decoder_layers, gradient_history, lr_evolution, output_folder="Models", decoder_name="decoder_model.pth"):
+def save_decoder(decoder, train_losses, val_losses, train_data, val_data, epoch, stopped_epoch, decoder_layers, gradient_history, lr_evolution, z1_losses, z3_losses, output_folder="Models", decoder_name="decoder_model.pth"):
     """
     Salva il decoder e le informazioni del training in un file .pth.
     
@@ -431,8 +444,43 @@ def save_decoder(decoder, train_losses, val_losses, train_data, val_data, epoch,
         'epoch': epoch,
         'stopped_epoch': stopped_epoch,
         'gradient_history': gradient_history,
-        'lr_evolution': lr_evolution
-    }, file_path)
+        'lr_evolution': lr_evolution,
+        'z1_losses': z1_losses,
+        'z3_losses': z3_losses
+        }, file_path)
+    
+
+    print(f"Decoder and training info saved to {file_path}")
+
+def save_decoderZ3(decoder, train_losses, val_losses, train_data, val_data, epoch, stopped_epoch, decoder_layers, gradient_history, lr_evolution, output_folder="Models", decoder_name="decoder_model.pth"):
+    """
+    Salva il decoder e le informazioni del training in un file .pth.
+
+    Parametri:
+    - decoder: modello del decoder da salvare.
+    - train_losses: lista delle perdite di training.
+    - val_losses: lista delle perdite di validazione.
+    - stopped_epoch: epoca in cui l'early stopping ha fermato il training.
+    - gradient_history: storico dei gradienti per ogni epoca.
+    - lr_evolution: evoluzione del learning rate.
+    - output_folder: cartella in cui salvare il file.
+    - decoder_name: nome del file di salvataggio.
+    """
+    os.makedirs(output_folder, exist_ok=True)
+    file_path = os.path.join(output_folder, decoder_name)
+
+    torch.save({
+        'decoder_state_dict': decoder.state_dict(),
+        'decoder_layers': decoder_layers,
+        'train_losses': train_losses,
+        'val_losses': val_losses,
+        'train_data': train_data,
+        'val_data': val_data,
+        'epoch': epoch,
+        'stopped_epoch': stopped_epoch,
+        'gradient_history': gradient_history,
+        'lr_evolution': lr_evolution,
+        }, file_path)
 
     print(f"Decoder and training info saved to {file_path}")
 
@@ -466,7 +514,45 @@ def load_decoder(file_path, decoder_class):
         'epoch': checkpoint['epoch'],
         'stopped_epoch': checkpoint['stopped_epoch'],
         'gradient_history': checkpoint['gradient_history'],
-        'lr_evolution': checkpoint['lr_evolution']
+        'lr_evolution': checkpoint['lr_evolution'],
+        'z1_losses': checkpoint['z1_losses'],
+        'z3_losses': checkpoint['z3_losses']
+    }
+
+    print(f"Decoder and training info loaded from {file_path}")
+    return decoder, training_info
+
+def load_decoderZ3(file_path, decoder_class):
+    """
+    Carica il decoder e le informazioni del training da un file .pth.
+    
+    Parametri:
+    - file_path: percorso del file .pth salvato.
+    - decoder_class: classe da usare per ricostruire il decoder.
+    
+    Ritorna:
+    - decoder: istanza del decoder con i parametri caricati.
+    - training_info: dizionario contenente le variabili del training e dei dati.
+    """
+    # Carica il checkpoint dal file
+    checkpoint = torch.load(file_path)
+
+    # Ricostruisci il decoder
+    decoder_layers = checkpoint['decoder_layers']
+    decoder_layers_reversed = decoder_layers[::-1]
+    decoder = decoder_class(decoder_layers_reversed)
+    decoder.load_state_dict(checkpoint['decoder_state_dict'])
+
+    # Raccogli le informazioni del training
+    training_info = {
+        'train_losses': checkpoint['train_losses'],
+        'val_losses': checkpoint['val_losses'],
+        'train_data': checkpoint['train_data'],
+        'val_data': checkpoint['val_data'],
+        'epoch': checkpoint['epoch'],
+        'stopped_epoch': checkpoint['stopped_epoch'],
+        'gradient_history': checkpoint['gradient_history'],
+        'lr_evolution': checkpoint['lr_evolution'],
     }
 
     print(f"Decoder and training info loaded from {file_path}")

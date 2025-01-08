@@ -1,288 +1,8 @@
 {
-    "Prova15Decoder": {
-        "decoder_layers": [
-            5,
-            10,
-            15,
-            20,
-            25,
-            30
-        ],
-        "latent_dim": 5,
-        "early_stopping": {
-            "patience": 10,
-            "delta": -1
-        },
-        "dataset": "delay15dim20,15_noise0,0",
-        "batch_size": 32,
-        "optimizer": "Adam",
-        "learning_rate": 0.01,
-        "scheduler": {
-            "type": "ReduceLROnPlateau",
-            "params": {
-                "mode": "min",
-                "factor": 0.5,
-                "patience": 10,
-                "min_lr": 1e-07
-            }
-        },
-        "Encoder": "Prova15"
-    },
-    "Prova15": {
-        "decoder_layers": [
-            5,
-            10,
-            15,
-            20,
-            25,
-            30
-        ],
-        "latent_dim": 5,
-        "early_stopping": {
-            "patience": 10,
-            "delta": -1
-        },
-        "dataset": "delay15dim20,15_noise0,0",
-        "batch_size": 32,
-        "optimizer": "Adam",
-        "learning_rate": 0.01,
-        "scheduler": {
-            "type": "ReduceLROnPlateau",
-            "params": {
-                "mode": "min",
-                "factor": 0.5,
-                "patience": 10,
-                "min_lr": 1e-08
-            }
-        },
-        "Encoder": "Prova15"
-    },
-    "P0-0.1": {
-        "decoder_layers": [
-            5,
-            10,
-            15,
-            20,
-            25,
-            30
-        ],
-        "latent_dim": 5,
-        "early_stopping": {
-            "patience": 10,
-            "delta": -1
-        },
-        "dataset": "delay15dim20,15_noise0,0",
-        "batch_size": 32,
-        "optimizer": "Adam",
-        "learning_rate": 0.01,
-        "scheduler": {
-            "type": "ReduceLROnPlateau",
-            "params": {
-                "mode": "min",
-                "factor": 0.5,
-                "patience": 10,
-                "min_lr": 1e-06
-            }
-        },
-        "Encoder": "P0"
-    },
-    "P1": {
-        "decoder_layers": [
-            5,
-            10,
-            15,
-            20,
-            25,
-            30
-        ],
-        "latent_dim": 5,
-        "early_stopping": {
-            "patience": 10,
-            "delta": -1
-        },
-        "dataset": "delay15dim20,15_noise0,0",
-        "batch_size": 32,
-        "optimizer": "Adam",
-        "learning_rate": 0.01,
-        "scheduler": {
-            "type": "CyclicLR",
-            "params": {
-                "mode": "min",
-                "factor": 0.5,
-                "patience": 15,
-                "min_lr": 0.0001,
-                "base_lr": 0.0001,
-                "max_lr": 0.01,
-                "step_size_up": 200,
-                "T_max": 100,
-                "T_0": 10,
-                "T_mult": 2,
-                "eta_min": 0.0001
-            }
-        },
-        "Encoder": "P1"
-    },
-    "Prova2": {
-        "decoder_layers": [
-            5,
-            10,
-            15,
-            20,
-            25,
-            30
-        ],
-        "latent_dim": 5,
-        "early_stopping": {
-            "patience": 10,
-            "delta": -1
-        },
-        "dataset": "delay15dim20,15_noise0,0",
-        "batch_size": 32,
-        "optimizer": "Adam",
-        "learning_rate": 0.01,
-        "scheduler": {
-            "type": "CosineAnnealingWarmRestarts",
-            "params": {
-                "mode": "min",
-                "factor": 0.5,
-                "patience": 15,
-                "min_lr": 0.0001,
-                "base_lr": 0.0001,
-                "max_lr": 0.01,
-                "step_size_up": 200,
-                "T_max": 100,
-                "T_0": 10,
-                "T_mult": 2,
-                "eta_min": 1e-08
-            }
-        },
-        "Encoder": "Prova2"
-    },
-    "PaperVAE": {
-        "decoder_layers": [
-            5,
-            10,
-            15,
-            20,
-            25,
-            30,
-            35,
-            40
-        ],
-        "latent_dim": 5,
-        "early_stopping": {
-            "patience": 10,
-            "delta": -1
-        },
-        "dataset": "delay3dim100,20_noise0,0",
-        "batch_size": 32,
-        "optimizer": "Adam",
-        "learning_rate": 0.01,
-        "scheduler": {
-            "type": "CosineAnnealingWarmRestarts",
-            "params": {
-                "mode": "min",
-                "factor": 0.5,
-                "patience": 15,
-                "min_lr": 0.0001,
-                "base_lr": 0.0001,
-                "max_lr": 0.01,
-                "step_size_up": 200,
-                "T_max": 100,
-                "T_0": 10,
-                "T_mult": 2,
-                "eta_min": 1e-08
-            }
-        },
-        "Encoder": "PaperA"
-    },
-    "PaperVAE2": {
-        "decoder_layers": [
-            5,
-            10,
-            15,
-            20,
-            25,
-            30,
-            33,
-            35,
-            38,
-            40
-        ],
-        "latent_dim": 5,
-        "early_stopping": {
-            "patience": 10,
-            "delta": -1
-        },
-        "dataset": "delay3dim100,20_noise0,0",
-        "batch_size": 32,
-        "optimizer": "Adam",
-        "learning_rate": 0.01,
-        "scheduler": {
-            "type": "CosineAnnealingWarmRestarts",
-            "params": {
-                "mode": "min",
-                "factor": 0.5,
-                "patience": 15,
-                "min_lr": 0.0001,
-                "base_lr": 0.0001,
-                "max_lr": 0.01,
-                "step_size_up": 200,
-                "T_max": 100,
-                "T_0": 10,
-                "T_mult": 2,
-                "eta_min": 1e-08
-            }
-        },
-        "Encoder": "PaperA"
-    },
-    "PaperVAE22": {
-        "decoder_layers": [
-            10,
-            15,
-            20,
-            25,
-            30,
-            33,
-            35,
-            38,
-            40
-        ],
-        "latent_dim": 10,
-        "early_stopping": {
-            "patience": 10,
-            "delta": -1
-        },
-        "dataset": "delay3dim100,20_noise0,0",
-        "batch_size": 32,
-        "optimizer": "Adam",
-        "learning_rate": 0.01,
-        "scheduler": {
-            "type": "CosineAnnealingWarmRestarts",
-            "params": {
-                "mode": "min",
-                "factor": 0.5,
-                "patience": 15,
-                "min_lr": 0.0001,
-                "base_lr": 0.0001,
-                "max_lr": 0.01,
-                "step_size_up": 200,
-                "T_max": 100,
-                "T_0": 10,
-                "T_mult": 2,
-                "eta_min": 1e-08
-            }
-        },
-        "Encoder": "PaperA2"
-    },
     "Model_1": {
         "decoder_layers": [
             5,
-            15,
             20,
-            25,
-            30,
-            35,
             40
         ],
         "latent_dim": 5,
@@ -294,12 +14,47 @@
         "batch_size": 32,
         "optimizer": "Adam",
         "learning_rate": 0.02,
+        "gamma": 20.0,
         "scheduler": {
             "type": "ReduceLROnPlateau",
             "params": {
                 "mode": "min",
                 "factor": 0.5,
-                "patience": 15,
+                "patience": 10,
+                "min_lr": 1e-09,
+                "base_lr": 0.0001,
+                "max_lr": 0.01,
+                "step_size_up": 200,
+                "T_max": 100,
+                "T_0": 10,
+                "T_mult": 2,
+                "eta_min": 1e-08
+            }
+        },
+        "Encoder": "Model_1"
+    },
+    "Model_1,1": {
+        "decoder_layers": [
+            5,
+            20,
+            40
+        ],
+        "latent_dim": 5,
+        "early_stopping": {
+            "patience": 10,
+            "delta": -1
+        },
+        "dataset": "delay3dim100,20_noise0,0",
+        "batch_size": 32,
+        "optimizer": "Adam",
+        "learning_rate": 0.02,
+        "gamma": 20.0,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.5,
+                "patience": 10,
                 "min_lr": 0.0001,
                 "base_lr": 0.0001,
                 "max_lr": 0.01,

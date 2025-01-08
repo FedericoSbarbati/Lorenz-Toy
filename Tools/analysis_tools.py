@@ -391,7 +391,7 @@ def pca_r2_analysis_embeddings(true_embeddings, reconstructed_embeddings, title1
         for i in range(true_projected.shape[1])
     ]
 
-    # Ottenere la varianza spiegata da ciascuna componente principale
+    # Ottenere la varianza spiegata da ciascuna componente principale (DEI DATI ORIGINALI)
     explained_variance = pca.explained_variance_ratio_
 
     # Plot dei risultati

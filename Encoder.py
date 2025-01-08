@@ -64,6 +64,36 @@ class EmbeddedDatasetforDecoder(Dataset):
         input_data = self.reduced_data_y1[idx]
         target_data = torch.cat((self.reduced_data_y2_1[idx], self.reduced_data_y2_2[idx]), dim=0)
         return input_data, target_data
+    
+
+# Creazione del dataset per allenare l'encoder
+class EmbeddedDatasetZ3(Dataset):
+    def __init__(self, reduced_data_y1, reduced_data_y2_2):
+        """
+        Dataset per allenare l'encoder. Ogni colonna della matrice proiettata è un esempio.
+
+        Parameters:
+        - projected_hankel (numpy.ndarray): Matrice proiettata di dimensione (r, p-d+1),
+                                             dove r è il numero di polinomi di Legendre.
+        """
+        # Converti le colonne della matrice in righe
+        # Converti tutti i dati in tensori di tipo float32
+        self.reduced_data_y1 = torch.tensor(reduced_data_y1.T, dtype=torch.float32)
+        self.reduced_data_y2_2 = torch.tensor(reduced_data_y2_2.T, dtype=torch.float32)
+
+                # Assicurati che le dimensioni siano consistenti
+        assert len(self.reduced_data_y1) == len(self.reduced_data_y2_2), \
+            "Le lunghezze degli reduced_data devono essere uguali."
+
+    def __len__(self):
+        # Restituisce il numero totale di esempi
+        return len(self.reduced_data_y1)
+
+    def __getitem__(self, idx):
+        # Restituisci il campione e il target
+        input_data = self.reduced_data_y1[idx]
+        target_data = self.reduced_data_y2_2[idx]
+        return input_data, target_data
 
 
     
@@ -278,7 +308,7 @@ def trainEncoder(epochs, train_loader, val_loader, model, optimizer, scheduler, 
 
 
 # Training del VAE per ricostruzione di Y2 con Encoder già allenato
-def reconstruct_y2fromy1(epochs, train_loader, val_loader, model, optimizer, scheduler, scheduler_config, early_stopping_params=None):
+def reconstruct_y2fromy1(r,gamma,epochs, train_loader, val_loader, model, optimizer, scheduler, scheduler_config, early_stopping_params=None):
     # Gradienti dell'Encoder e dello spazio latente sono già congelati nel Notebook principale
     # Early stopping
     early_stopping = EarlyStopping(**early_stopping_params) if early_stopping_params else None
@@ -286,15 +316,21 @@ def reconstruct_y2fromy1(epochs, train_loader, val_loader, model, optimizer, sch
     # Liste per memorizzare le perdite
     train_losses = []
     val_losses = []
+    z1_losses = []
+    z3_losses = []
     # Durante il ciclo di training
     decoder_gradients = {
-        "decoder": []
+        "z1": [],
+        "z3": [],
+        
     }
     lr_evolution = []
 
     for epoch in range(epochs):
         model.train()
         epoch_loss = 0
+        epoch_z1_loss = 0
+        epoch_z3_loss = 0
         for batch in train_loader:
             y1, y2 = batch  # Decomponi input (y1) e target (y2)
             y1 = y1.float()
@@ -302,26 +338,56 @@ def reconstruct_y2fromy1(epochs, train_loader, val_loader, model, optimizer, sch
             optimizer.zero_grad()
 
             # Variabili temporanee per sommare i gradienti per batch
-            decoder_grad_total = 0
             num_batches = 0
+            z1_grad_total = 0
+            z3_grad_total = 0
 
             # Calcola l'output della rete
             recon_y2, _, _ = model(y1)
 
             # Calcola la perdita basata su y2 (y)
-            recon_loss = torch.nn.functional.mse_loss(recon_y2, y2, reduction='mean')
+            '''
+            Scomponiamo y2 in Z1 e Z3 e calcoliamo la MSE di ricostruzione su entrambe
+            '''
+            
+            z1_target = y2[:,:r]
+            z3_target = y2[:,r:]
+            z1_recon = recon_y2[:,:r]
+            z3_recon = recon_y2[:,r:]
+
+            z1_loss = torch.nn.functional.mse_loss(z1_recon, z1_target, reduction='mean') / 2.0
+            z3_loss = torch.nn.functional.mse_loss(z3_recon, z3_target, reduction='mean') * gamma / 2.0
+
+            recon_loss = z1_loss + z3_loss
+            #recon_loss = torch.nn.functional.mse_loss(recon_y2, y2, reduction='mean') # Occhio al fattore 1/n quando cambi la dimensione del vettore (40->20)
             recon_loss.backward()
 
 
             # Clip decoder gradient norm
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
 
-            # Nel ciclo batch del training
             for name, param in model.named_parameters():
                 if param.grad is not None:
                     grad_norm = param.grad.norm().item()
-                    if name in ["decoder.decoder.0.weight", "decoder.decoder.0.bias", "decoder.decoder.2.weight", "decoder.decoder.2.bias", "decoder.decoder.4.weight", "decoder.decoder.4.bias"]:
-                        decoder_grad_total += grad_norm
+
+                    # Controlla se il parametro appartiene all'ultimo layer del decoder
+                    if "decoder.decoder.last_layer.weight" in name:
+                        # Dividi i gradienti in due parti: Z1 (prima metà) e Z3 (seconda metà)
+                        mid_point = param.grad.size(0) // 2  # Dividi a metà la dimensione dei gradienti
+                        z1_grad_norm = param.grad[:mid_point].norm().item()
+                        z3_grad_norm = param.grad[mid_point:].norm().item()
+
+                        z1_grad_total += z1_grad_norm
+                        z3_grad_total += z3_grad_norm
+
+                    elif "decoder.decoder.last_layer.bias" in name:
+                        # Stesso principio per i bias
+                        mid_point = param.grad.size(0) // 2
+                        z1_grad_norm = param.grad[:mid_point].norm().item()
+                        z3_grad_norm = param.grad[mid_point:].norm().item()
+
+                        z1_grad_total += z1_grad_norm
+                        z3_grad_total += z3_grad_norm
 
             num_batches += 1
 
@@ -331,17 +397,26 @@ def reconstruct_y2fromy1(epochs, train_loader, val_loader, model, optimizer, sch
 
             lr_evolution.append(current_lr)
 
-            # Alla fine dell'epoch, calcola la media
-            decoder_gradients["decoder"].append(decoder_grad_total / num_batches)
-
             # Aggiorna solo i parametri del decoder
             optimizer.step()
 
             epoch_loss += recon_loss.item()
+            epoch_z1_loss += z1_loss.item()
+            epoch_z3_loss += z3_loss.item()
+        
+        # Salva i gradienti medi per questa epoca
+        decoder_gradients["z1"].append(z1_grad_total / num_batches)
+        decoder_gradients["z3"].append(z3_grad_total / num_batches)
 
         epoch_loss /= len(train_loader.dataset)
         train_losses.append(epoch_loss)
 
+        epoch_z1_loss /= len(train_loader.dataset)
+        z1_losses.append(epoch_z1_loss)
+
+        epoch_z3_loss /= len(train_loader.dataset)
+        z3_losses.append(epoch_z3_loss)
+        
         # Validation
         model.eval()
         val_loss = 0
@@ -371,12 +446,144 @@ def reconstruct_y2fromy1(epochs, train_loader, val_loader, model, optimizer, sch
 
         # Stampa la perdita media dell'epoca
         print(f'Epoch [{epoch+1}/{epochs}], '
-              f'Training Loss: {epoch_loss:.6f}, lr = {current_lr:.6f}')
+              f'Training Loss: {epoch_loss:.6f}, lr = {current_lr}')
+        print(f"Z1 Loss: {epoch_z1_loss:.6f}, Z3 Loss: {epoch_z3_loss:.6f}")
 
     # Plot dei risultati DA AGGIORNARE
-    plot_Decoder_results(train_losses, val_losses, decoder_gradients)
+    plot_Decoder_results(train_losses, val_losses, decoder_gradients,z1_losses,z3_losses)
+
+    return train_losses, val_losses, early_stopping.stopped_epoch, decoder_gradients, lr_evolution,z1_losses,z3_losses
+
+
+
+# Training del VAE per ricostruzione di Z3 con decoder specializzato
+def reconstruct_Z3(r,epochs, train_loader, val_loader, model, optimizer, scheduler, scheduler_config, early_stopping_params=None):
+    # Gradienti dell'Encoder e dello spazio latente sono già congelati nel Notebook principale
+    # Early stopping
+    early_stopping = EarlyStopping(**early_stopping_params) if early_stopping_params else None
+
+    # Liste per memorizzare le perdite
+    train_losses = []
+    val_losses = []
+    # Durante il ciclo di training
+    decoder_gradients = {
+        "z3": [],
+        
+    }
+    lr_evolution = []
+
+    for epoch in range(epochs):
+        model.train()
+        epoch_loss = 0
+        # Variabili temporanee per sommare i gradienti per batch
+        num_batches = 0
+        z3_grad_total = 0
+        for batch in train_loader:
+            y1, y2 = batch  # Decomponi input (y1) e target (y2)
+            y1 = y1.float()
+            y2 = y2.float()
+            optimizer.zero_grad()
+
+
+            # Calcola l'output della rete
+            recon_y2, _, _ = model(y1)
+            recon_loss = torch.nn.functional.mse_loss(recon_y2, y2, reduction='mean') 
+            recon_loss.backward()
+
+
+            # Clip decoder gradient norm
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+
+            for name, param in model.named_parameters():
+                if param.grad is not None:
+                    grad_norm = param.grad.norm().item()
+
+                    # Controlla se il parametro appartiene al decoder
+                    if "decoder" in name:
+                        z3_grad_total += grad_norm
+
+            num_batches += 1
+
+            # Accesso ai learning rate
+            for param_group in optimizer.param_groups:
+                current_lr = param_group['lr']
+
+            lr_evolution.append(current_lr)
+
+            # Aggiorna solo i parametri del decoder
+            optimizer.step()
+
+            epoch_loss += recon_loss.item()
+        
+        # Salva i gradienti medi per questa epoca
+        decoder_gradients["z3"].append(z3_grad_total / num_batches)
+
+        epoch_loss /= len(train_loader.dataset)
+        train_losses.append(epoch_loss)
+        
+        # Validation
+        model.eval()
+        val_loss = 0
+        with torch.no_grad():
+            for batch in val_loader:
+                y1, y2 = batch  # Decomponi input (y1) e target (y2)
+                y1 = y1.float()
+                y2 = y2.float()
+                recon_y2, _, _ = model(y1)
+                recon_loss = torch.nn.functional.mse_loss(recon_y2, y2, reduction='mean')
+                val_loss += recon_loss.item()
+
+        val_loss /= len(val_loader.dataset)
+        val_losses.append(val_loss)
+
+        if scheduler_config["type"] == "ReduceLROnPlateau":
+            scheduler.step(val_loss)
+        else:
+            scheduler.step()
+
+        # Controllo Early Stopping
+        if early_stopping:
+            early_stopping(val_loss, epoch)
+            if early_stopping.early_stop:
+                print(f"Early stopping at epoch {epoch + 1}")
+                break
+
+        # Stampa la perdita media dell'epoca
+        print(f'Epoch [{epoch+1}/{epochs}], '
+              f'Training Loss: {epoch_loss}, lr = {current_lr}')
+
+    # Plot dei risultati 
+    fig, axes = plt.subplots(1, 2, figsize=(18, 6))
+    # Plot training loss and validation loss
+    axes[0].plot(train_losses, label='Training Loss', color='green')
+    axes[0].plot(val_losses, label='Validation Loss', color='orange')
+    axes[0].set_title('Training Loss vs Validation Loss')
+    axes[0].set_xlabel('Epoch')
+    axes[0].set_ylabel('Loss')
+    axes[0].legend()
+    axes[0].grid(True)
+
+    # Carica i gradienti salvati
+    epochs = range(len(decoder_gradients["z3"]))
+
+    # Plot gradient norms on the same plot
+    axes[1].plot(epochs, decoder_gradients["z3"], label="z3 Gradient Norm", alpha=0.7)
+    axes[1].set_xlabel("Epoch")
+    axes[1].set_ylabel("Gradient Norm")
+    axes[1].set_title("Gradient Norm Evolution During Training")
+    axes[1].legend()
+    axes[1].grid(True)
+
+    plt.tight_layout()
+    plt.show()
 
     return train_losses, val_losses, early_stopping.stopped_epoch, decoder_gradients, lr_evolution
+
+
+
+
+
+  
 
 
 
