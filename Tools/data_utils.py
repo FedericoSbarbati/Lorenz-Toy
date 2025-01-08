@@ -127,9 +127,18 @@ class SimulationData:
         Generate Hankel Matrices for the two observables y1 and y2.
         For y2 we compute two Matrices H2_1 and H2_2, corresponding to the two scalar components of y2.
         '''
+        '''
+        # Non RELAXED FORMALISM
         self.H1 = create_Hankel_matrix(self.y1_embedding, self.tau)
         self.H2_1 = create_Hankel_matrix(self.y2_embedding_1, self.tau)
         self.H2_2 = create_Hankel_matrix(self.y2_embedding_2, self.tau)
+        '''
+
+        # RELAXED FORMALISM
+        self.H1 = self.y1_embedding.T
+        self.H2_1 = self.y2_embedding_1.T
+        self.H2_2 = self.y2_embedding_2.T
+
 
     def project_on_legendre(self):
         

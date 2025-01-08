@@ -235,6 +235,45 @@ def diagonal_mean(hankel_matrix):
 
     return serie_temporale
 
+def reconstruct_time_series(hankel_matrix):
+    """
+    Ricostruisce la serie temporale originale da una matrice di Hankel costruita
+    con il formalismo rilassato.
+
+    Args:
+        hankel_matrix (np.ndarray): Matrice di Hankel (formalismo rilassato),
+                                    shape (d, m), dove:
+                                    - d è la dimensione del vettore di ritardo,
+                                    - m è il numero di colonne.
+
+    Returns:
+        np.ndarray: Serie temporale originale ricostruita.
+    """
+    # Ottieni le dimensioni della matrice
+    d, m = hankel_matrix.shape
+    
+    # Inizializza la serie temporale
+    time_series_length = d + m - 1  # Lunghezza totale della serie temporale
+    time_series = np.zeros(time_series_length)
+    
+    # Ricostruisci la serie temporale
+    for i in range(d):  # Scorri sulle righe della matrice
+        for j in range(m):  # Scorri sulle colonne della matrice
+            time_index = i + j  # Posizione nella serie temporale
+            time_series[time_index] += hankel_matrix[i, j]
+    
+    # Contatore per normalizzare la sovrapposizione
+    overlap_count = np.zeros(time_series_length)
+    for i in range(d):
+        for j in range(m):
+            time_index = i + j
+            overlap_count[time_index] += 1
+    
+    # Normalizza la serie temporale per gestire la sovrapposizione
+    time_series /= overlap_count
+    
+    return time_series
+
 
 
 
