@@ -352,7 +352,7 @@ def latent_variables(vae_model, mean_vectors, logvar_vectors, dataloader, device
     plt.show()
 
 
-def pca_r2_analysis_embeddings(true_embeddings, reconstructed_embeddings, n_components=4):
+def pca_r2_analysis_embeddings(true_embeddings, reconstructed_embeddings, title1 = "titolo", title2 = "titolo", n_components=4):
     """
     Esegue PCA sui vettori di embedding originali e ricostruiti, confronta fino a n_components
     e calcola R² per ciascuna componente principale.
@@ -402,7 +402,7 @@ def pca_r2_analysis_embeddings(true_embeddings, reconstructed_embeddings, n_comp
     plt.plot(range(1, len(r2_per_component) + 1), r2_per_component, marker='o', label="R² per PC")
     plt.xlabel("Componente Principale (PC)")
     plt.ylabel("R²")
-    plt.title("R² per PC tra ricostruzione e originale")
+    plt.title(title1)
     plt.grid(True)
     plt.legend()
 
@@ -412,7 +412,7 @@ def pca_r2_analysis_embeddings(true_embeddings, reconstructed_embeddings, n_comp
     plt.step(range(1, len(explained_variance) + 1), np.cumsum(explained_variance), where='mid', color='red', label="Cumulativa")
     plt.xlabel("Componente Principale (PC)")
     plt.ylabel("Varianza Spiegata")
-    plt.title("Varianza Spiegata per Componente Principale")
+    plt.title(title2)
     plt.grid(True)
     plt.legend()
     

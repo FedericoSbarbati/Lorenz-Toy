@@ -52,19 +52,19 @@ class EarlyStopping:
 
 def get_scheduler(optimizer, scheduler_config):
     """
-    Crea uno scheduler in base alla configurazione.
+    Crea uno scheduler in base alla configurazione fornita.
 
     Parametri:
-    - optimizer: ottimizzatore associato.
-    - scheduler_config: configurazione dello scheduler (dizionario con "type" e "params").
+    - optimizer: l'ottimizzatore associato.
+    - scheduler_config: configurazione completa dello scheduler (con "type" e "params").
 
     Ritorna:
-    - Istanza dello scheduler.
+    - Istanza dello scheduler selezionato.
     """
-    if scheduler_config is None:
-        raise ValueError("Scheduler configuration is missing.")
+    if scheduler_config is None or "type" not in scheduler_config:
+        raise ValueError("Scheduler configuration or 'type' is missing.")
 
-    scheduler_type = scheduler_config.get("type")
+    scheduler_type = scheduler_config["type"]
     scheduler_params = scheduler_config.get("params", {})
 
     if scheduler_type == "StepLR":
@@ -72,9 +72,23 @@ def get_scheduler(optimizer, scheduler_config):
     elif scheduler_type == "ExponentialLR":
         return lr_scheduler.ExponentialLR(optimizer, **scheduler_params)
     elif scheduler_type == "ReduceLROnPlateau":
-        return lr_scheduler.ReduceLROnPlateau(optimizer, **scheduler_params)
+        relevant_params = {k: scheduler_params[k] for k in ["mode", "factor", "patience", "min_lr"] if k in scheduler_params}
+        return lr_scheduler.ReduceLROnPlateau(optimizer, **relevant_params)
+    elif scheduler_type == "CyclicLR":
+        # Filtra i parametri per CyclicLR
+        relevant_params = {k: scheduler_params[k] for k in ["base_lr", "max_lr", "step_size_up"] if k in scheduler_params}
+        return lr_scheduler.CyclicLR(optimizer, **relevant_params)
+    elif scheduler_type == "CosineAnnealingLR":
+        # Filtra i parametri per CosineAnnealingLR
+        relevant_params = {k: scheduler_params[k] for k in ["T_max", "eta_min"] if k in scheduler_params}
+        return lr_scheduler.CosineAnnealingLR(optimizer, **relevant_params)
+    elif scheduler_type == "CosineAnnealingWarmRestarts":
+        # Filtra i parametri per CosineAnnealingWarmRestarts
+        relevant_params = {k: scheduler_params[k] for k in ["T_0", "T_mult", "eta_min"] if k in scheduler_params}
+        return lr_scheduler.CosineAnnealingWarmRestarts(optimizer, **relevant_params)
     else:
         raise ValueError(f"Unsupported scheduler type: {scheduler_type}")
+
 
 
 

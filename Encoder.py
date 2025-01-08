@@ -30,11 +30,6 @@ class EmbeddedDataset(Dataset):
 
 
 
-    
-
-import torch
-from torch.utils.data import Dataset
-
 class EmbeddedDatasetforDecoder(Dataset):
     def __init__(self, reduced_data_y1, reduced_data_y2_1, reduced_data_y2_2):
         """
@@ -301,7 +296,7 @@ def reconstruct_y2fromy1(epochs, train_loader, val_loader, model, optimizer, sch
         model.train()
         epoch_loss = 0
         for batch in train_loader:
-            y1, y2 = batch  # Decomponi input (z1) e target (z2)
+            y1, y2 = batch  # Decomponi input (y1) e target (y2)
             y1 = y1.float()
             y2 = y2.float()
             optimizer.zero_grad()
@@ -313,7 +308,7 @@ def reconstruct_y2fromy1(epochs, train_loader, val_loader, model, optimizer, sch
             # Calcola l'output della rete
             recon_y2, _, _ = model(y1)
 
-            # Calcola la perdita basata su z2 (y)
+            # Calcola la perdita basata su y2 (y)
             recon_loss = torch.nn.functional.mse_loss(recon_y2, y2, reduction='mean')
             recon_loss.backward()
 
