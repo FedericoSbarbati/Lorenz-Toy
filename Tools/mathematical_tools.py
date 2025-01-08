@@ -152,21 +152,6 @@ def legendre_basis(d, r):
         P[:, k] = legendre(k)(x)
     return P
 
-def project_on_legendre(hankel_matrix, P):
-    """
-    Proiezione della matrice di Hankel sui polinomi di Legendre.
-
-    Parameters:
-    hankel_matrix: np.ndarray
-        Matrice di Hankel.
-    P: np.ndarray
-        Matrice dei polinomi di Legendre (d x r).
-
-    Returns:
-    projected_data: np.ndarray
-        Matrice dei dati proiettati nello spazio a dimensione ridotta.
-    """
-    return hankel_matrix.T @ P  # Proiezione sui polinomi di Legendre trasposta
 
 def normalize_columns(matrix):
     """

@@ -145,11 +145,12 @@ class SimulationData:
         '''
         Project the Hankel Matrices on the first r Legendre Polynomials.
         '''
+        
         self.P = legendre_basis(self.embedding_dim, self.r)
 
-        self.projected_H1 = project_on_legendre(self.H1, self.P)
-        self.projected_H2_1 = project_on_legendre(self.H2_1, self.P)
-        self.projected_H2_2 = project_on_legendre(self.H2_2, self.P)
+        self.projected_H1 = np.dot(self.H1.T, self.P)
+        self.projected_H2_1 = np.dot(self.H2_1.T, self.P)
+        self.projected_H2_2 = np.dot(self.H2_2.T, self.P)
 
         self.projected_H1 = self.projected_H1.T
         self.projected_H2_1 = self.projected_H2_1.T

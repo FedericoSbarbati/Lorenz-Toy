@@ -274,5 +274,42 @@
             }
         },
         "Encoder": "PaperA2"
+    },
+    "Model_1": {
+        "decoder_layers": [
+            5,
+            15,
+            20,
+            25,
+            30,
+            35,
+            40
+        ],
+        "latent_dim": 5,
+        "early_stopping": {
+            "patience": 10,
+            "delta": -1
+        },
+        "dataset": "delay3dim100,20_noise0,0",
+        "batch_size": 32,
+        "optimizer": "Adam",
+        "learning_rate": 0.02,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.5,
+                "patience": 15,
+                "min_lr": 0.0001,
+                "base_lr": 0.0001,
+                "max_lr": 0.01,
+                "step_size_up": 200,
+                "T_max": 100,
+                "T_0": 10,
+                "T_mult": 2,
+                "eta_min": 1e-08
+            }
+        },
+        "Encoder": "Model_1"
     }
 }

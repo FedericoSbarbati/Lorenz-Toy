@@ -76,7 +76,7 @@ class Encoder(nn.Module):
         self.layers = []
         for i in range(len(layer_dims) - 2):
             self.layers.append(nn.Linear(layer_dims[i], layer_dims[i + 1]))
-            self.layers.append(nn.LeakyReLU())
+            self.layers.append(nn.Tanh())
         self.encoder = nn.Sequential(*self.layers)
         
         # Strati per la media e la log-varianza
@@ -96,7 +96,7 @@ class Decoder(nn.Module):
         for i in range(len(layer_dims) - 1, 0, -1):
             self.layers.append(nn.Linear(layer_dims[i], layer_dims[i - 1]))
             if i - 1 > 0:  # Strati intermedi
-                self.layers.append(nn.LeakyReLU())
+                self.layers.append(nn.Tanh())
             else:  # Ultimo strato
                 self.layers.append(nn.Sigmoid())  # Output normalizzati
         self.decoder = nn.Sequential(*self.layers)
