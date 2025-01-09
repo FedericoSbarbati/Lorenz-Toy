@@ -831,28 +831,51 @@ def enrich_analysis_with_config(analysis_data, config_file):
     
     return enriched_data
 
-def filter_by_config_param(data, param_name, param_value):
+def filter_by_config_params(data, filters, yes):
     """
-    Filtra i modelli nel dataset in base a un parametro di configurazione specifico.
+    Filtra i modelli nel dataset in base a più parametri di configurazione o a intervalli.
 
     Parameters:
         data (pd.DataFrame): Dataset contenente i dati arricchiti con le configurazioni.
-        param_name (str): Nome del parametro di configurazione da usare per il filtro.
-        param_value: Valore del parametro da usare per il filtro.
+        filters (list): Lista di filtri. Ogni filtro è un dizionario con:
+                        - "param_name" (str): Nome del parametro di configurazione.
+                        - "filter_type" (str): Tipo di filtro ('equals' o 'range').
+                        - "filter_value": Valore del filtro. Per 'equals' è un valore singolo,
+                          per 'range' è una tupla (min, max).
 
     Returns:
         pd.DataFrame: Dataset filtrato.
     """
-
-    if param_name is "NO":
+    if yes == False:
         return data
-    
-    elif param_name not in data.columns:
-        raise ValueError(f"Il parametro '{param_name}' non esiste nel dataset.")
-    
-    # Filtra i modelli in base al valore del parametro
-    filtered_data = data[data[param_name] == param_value]
-    return filtered_data
+    else:
+        filtered_data = data.copy()
+
+        for filter_item in filters:
+            param_name = filter_item["param_name"]
+            filter_type = filter_item["filter_type"]
+            filter_value = filter_item["filter_value"]
+
+            if param_name == "NO":
+                continue
+            
+            elif param_name not in filtered_data.columns:
+                raise ValueError(f"Il parametro '{param_name}' non esiste nel dataset.")
+            
+            if filter_type == "equals":
+                filtered_data = filtered_data[filtered_data[param_name] == filter_value]
+            
+            elif filter_type == "range":
+                min_value, max_value = filter_value
+                filtered_data = filtered_data[
+                    (filtered_data[param_name] >= min_value) & 
+                    (filtered_data[param_name] <= max_value)
+                ]
+            else:
+                raise ValueError(f"Tipo di filtro '{filter_type}' non supportato.")
+        
+        return filtered_data
+
 
 
 
