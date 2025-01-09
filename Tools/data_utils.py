@@ -302,6 +302,7 @@ def extract_params_from_filename(filename):
     - Un dizionario con i parametri estratti: {tau, embedding_dim, alpha, beta}
     """
     # Utilizzo di espressioni regolari per estrarre i parametri
+    filename = remove_json_extension(filename)
     pattern = r"delay(\d+)dim(\d+),(\d+)_noise([\d\.eE\-]+),([\d\.eE\-]+)"
     match = re.search(pattern, filename)
 
@@ -316,6 +317,20 @@ def extract_params_from_filename(filename):
     beta = float(match.group(5))
 
     return {"tau": tau, "embedding_dim": embedding_dim, "r": r, "alpha": alpha, "beta": beta}
+
+def remove_json_extension(filename):
+    """
+    Rimuove l'estensione .json dal nome del file, se presente.
+    
+    Parametri:
+    - filename: Nome del file (stringa)
+    
+    Ritorna:
+    - Nome del file senza l'estensione .json
+    """
+    if filename.endswith(".json"):
+        return filename[:-5]
+    return filename
 
 
 

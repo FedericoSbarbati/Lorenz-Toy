@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import torch
 import torch.optim as optim
 from torch.utils.data import DataLoader
+from Tools.data_utils import extract_params_from_filename
 from sklearn.decomposition import PCA
 import pandas as pd
 import os
@@ -527,13 +528,14 @@ def plot_z_metrics(data, r2_col, mse_col, maxse_col, title):
     - maxse_col: Nome della colonna per MaxSE.
     - title: Titolo del grafico.
     """
-    data = order_dataset_by_model(data)
+    # Crea una copia del DataFrame per evitare SettingWithCopyWarning
+    data = data.copy()
+    
     # Normalizza i dati per portare le metriche tra 0 e 1
-    data["R2 Normalized"] = data[r2_col]  #(data[r2_col] - data[r2_col].min()) / (data[r2_col].max() - data[r2_col].min())
+    data["R2 Normalized"] = data[r2_col]  # Normalizzazione opzionale
     data["MSE Normalized"] = (data[mse_col] - data[mse_col].min()) / (data[mse_col].max() - data[mse_col].min())
     data["MaxSE Normalized"] = (data[maxse_col] - data[maxse_col].min()) / (data[maxse_col].max() - data[maxse_col].min())
 
-    data = order_dataset_by_model(data)
     # Etichette sull'asse X
     model_names = data["Model Name"].astype(str)
     x = np.arange(len(model_names))
@@ -557,6 +559,44 @@ def plot_z_metrics(data, r2_col, mse_col, maxse_col, title):
     plt.grid(axis="y", linestyle="--", alpha=0.7)
     plt.tight_layout()
     plt.show()
+
+def plot_r2_z1_z3(data, r2_z1_col, r2_z3_col, title):
+    """
+    Crea un plot con barre sovrapposte per R² di Z1 e Z3 per ogni modello.
+    
+    Parametri:
+    - data: DataFrame con i dati degli encoder.
+    - r2_z1_col: Nome della colonna per R² di Z1.
+    - r2_z3_col: Nome della colonna per R² di Z3.
+    - title: Titolo del grafico.
+    """
+    # Crea una copia del DataFrame per evitare SettingWithCopyWarning
+    data = data.copy()
+    
+    # Etichette sull'asse X
+    model_names = data["Model Name"].astype(str)
+    x = np.arange(len(model_names))
+    
+    # Larghezza delle barre
+    bar_width = 0.3
+    
+    # Crea il plot
+    plt.figure(figsize=(12, 6))
+    
+    # Aggiungi le barre per ciascun R²
+    plt.bar(x - bar_width / 2, data[r2_z1_col], bar_width, alpha=0.7, label="R² Z1", color="blue")
+    plt.bar(x + bar_width / 2, data[r2_z3_col], bar_width, alpha=0.7, label="R² Z3", color="green")
+    
+    # Personalizza il grafico
+    plt.title(title)
+    plt.xlabel("Model Name")
+    plt.ylabel("R² Value")
+    plt.xticks(x, model_names, rotation=45, ha="right", fontsize=10)
+    plt.legend()
+    plt.grid(axis="y", linestyle="--", alpha=0.7)
+    plt.tight_layout()
+    plt.show()
+
 
 import re
 
@@ -661,6 +701,42 @@ def preprocess_array_data(data, r2_col, variance_col):
     
     return processed_data
 
+def plot_r2_pca(data, r2_col , variance_col, title):
+
+    processed_data = preprocess_array_data(data, r2_col, variance_col)
+    
+    # Plot per R2
+    plt.figure(figsize=(12, 6))
+    for model_name, r2_values in zip(processed_data["models"], processed_data["r2_values"]):
+        components = np.arange(1, len(r2_values) + 1)
+        plt.plot(components, r2_values, marker='o', linestyle='-', label=model_name, alpha=0.8)
+    
+    plt.title(title)
+    plt.xlabel("Principal Component Number")
+    plt.ylabel("R² Value")
+    plt.grid(axis="both", linestyle="--", alpha=0.7)
+    plt.legend(title="Models", loc="best", fontsize="small")
+    plt.tight_layout()
+    plt.show()
+
+def plot_variance_pca(data, r2_col , variance_col, title):
+    processed_data = preprocess_array_data(data, r2_col, variance_col)
+    # Plot per Varianza spiegata
+    plt.figure(figsize=(12, 6))
+    for model_name, variance_values in zip(processed_data["models"], processed_data["variance_values"]):
+        components = np.arange(1, len(variance_values) + 1)
+        plt.plot(components, variance_values, marker='x', linestyle='--', label=model_name, alpha=0.8)
+    
+    
+    plt.title(title)
+    plt.xlabel("Principal Component Number")
+    plt.ylabel("Explained Variance")
+    plt.grid(axis="both", linestyle="--", alpha=0.7)
+    plt.legend(title="Models", loc="best", fontsize="small")
+    plt.tight_layout()
+    plt.show()
+
+
 
 def plot_r2_and_variance_separate(data, r2_col, variance_col):
     """
@@ -713,6 +789,72 @@ def order_dataset_by_model(data):
     # Drop the temporary columns
     data = data.drop(columns=['Model', 'A', 'B'])
     return data
+
+def enrich_analysis_with_config(analysis_data, config_file):
+    """
+    Unisce i dati di analisi con i parametri di configurazione dei modelli e
+    aggiunge parametri estratti dai nomi dei file di training.
+
+    Parameters:
+        analysis_data (pd.DataFrame): Dati di analisi, deve contenere la colonna 'Model Name'.
+        config_file (str): Percorso del file JSON con le configurazioni dei modelli.
+
+    Returns:
+        pd.DataFrame: Dati arricchiti con i parametri di configurazione e quelli estratti dai file.
+    """
+    # Carica il database delle configurazioni
+    with open(config_file, 'r') as f:
+        config_data = json.load(f)
+    
+    # Converte il database in un DataFrame per facilitarne la manipolazione
+    config_df = pd.DataFrame.from_dict(config_data, orient='index').reset_index()
+    config_df.rename(columns={'index': 'Model Name'}, inplace=True)
+    
+    # Unisce i dati di analisi con le configurazioni usando 'Model Name'
+    enriched_data = pd.merge(analysis_data, config_df, on='Model Name', how='left')
+    
+    # Estrae i parametri dal nome del file e li aggiunge come colonne
+    extracted_params = []
+    for model_name in enriched_data['dataset']:
+        params = extract_params_from_filename(model_name)
+        if params:
+            extracted_params.append(params)
+        else:
+            # Aggiungi valori nulli se i parametri non possono essere estratti
+            extracted_params.append({"tau": None, "embedding_dim": None, "r": None, "alpha": None, "beta": None})
+    
+    # Converte i parametri estratti in un DataFrame
+    params_df = pd.DataFrame(extracted_params)
+    
+    # Aggiunge i parametri estratti ai dati arricchiti
+    enriched_data = pd.concat([enriched_data, params_df], axis=1)
+    
+    return enriched_data
+
+def filter_by_config_param(data, param_name, param_value):
+    """
+    Filtra i modelli nel dataset in base a un parametro di configurazione specifico.
+
+    Parameters:
+        data (pd.DataFrame): Dataset contenente i dati arricchiti con le configurazioni.
+        param_name (str): Nome del parametro di configurazione da usare per il filtro.
+        param_value: Valore del parametro da usare per il filtro.
+
+    Returns:
+        pd.DataFrame: Dataset filtrato.
+    """
+
+    if param_name is "NO":
+        return data
+    
+    elif param_name not in data.columns:
+        raise ValueError(f"Il parametro '{param_name}' non esiste nel dataset.")
+    
+    # Filtra i modelli in base al valore del parametro
+    filtered_data = data[data[param_name] == param_value]
+    return filtered_data
+
+
 
 
 
