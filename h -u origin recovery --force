@@ -1,0 +1,943 @@
+[33mcommit 37029db0f27c739e6a83a0cf2e453fa0284a25dd[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mrecovery[m[33m)[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Thu Jan 9 00:16:21 2025 +0000
+
+    Move large JSON files to Git LFS
+
+ .gitattributes                               | 1 [32m+[m
+ Simulation data/delay3dim20,20_noise0,0.json | 4 [32m+++[m[31m-[m
+ Simulation data/delay3dim30,20_noise0,0.json | 4 [32m+++[m[31m-[m
+ 3 files changed, 7 insertions(+), 2 deletions(-)
+
+[33mcommit ec4fc2a5303b77c144ef80f2fb8e3b25c2c03e38[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Thu Jan 9 00:06:33 2025 +0000
+
+    Punto di svolta per analisi di Z3: trovati
+    parametri promettenti encoder 30-20
+
+ Decoder Analysis Data/30-20.csv              |    2 [32m+[m
+ Decoder Models Z3/30-20.pth                  |  Bin [31m0[m -> [32m1846888[m bytes
+ Decoder Models/30-20.pth                     |  Bin [31m0[m -> [32m2904750[m bytes
+ Encoder Analysis Data/30-20.csv              |    4 [32m+[m
+ Encoder Analysis Data/NoLeg.csv              |    4 [32m+[m[31m-[m
+ Encoder Models/30-20.pth                     |  Bin [31m0[m -> [32m13732913[m bytes
+ Simulation data/delay3dim30,20_noise0,0.json |    1 [32m+[m
+ Z3reconAnalysis.ipynb                        |  111 [32m+++++[m[31m-----[m
+ __pycache__/Encoder.cpython-312.pyc          |  Bin [31m24050[m -> [32m24050[m bytes
+ decoderDatabase.json                         |   34 [32m+++[m
+ decoderDatabaseZ3.json                       |   34 [32m+++[m
+ encoderDatabase.json                         |   38 [32m++++[m
+ reconZ3.ipynb                                |  261 [32m+++++++++++++++[m[31m--------[m
+ simulationFactory.ipynb                      |   48 [32m++[m[31m---[m
+ trainDecoder.ipynb                           | 1263 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m--------------------------------------------------------[m
+ trainEncoder.ipynb                           |  836 [32m++++++++++++++++++++++++++++++++++++[m[31m-------------------------------------[m
+ valDecoder.ipynb                             |  271 [32m++++++++++++++++[m[31m--------[m
+ valEncoder.ipynb                             |  131 [32m++++++[m[31m------[m
+ 18 files changed, 1671 insertions(+), 1367 deletions(-)
+
+[33mcommit a72ca9405bb0a22c7f9f29300ee986a75e446cae[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Wed Jan 8 18:18:12 2025 +0000
+
+    Some work done
+
+ Encoder Analysis Data/NoLeg.csv              |   3 [32m+[m
+ Encoder Models/NoLeg.pth                     | Bin [31m0[m -> [32m10369713[m bytes
+ Failure/Decoder/P0-0.1.pth                   | Bin [31m506782[m -> [32m0[m bytes
+ Failure/Decoder/P1.pth                       | Bin [31m884762[m -> [32m0[m bytes
+ Failure/Decoder/PaperVAE.pth                 | Bin [31m1357688[m -> [32m0[m bytes
+ Failure/Decoder/PaperVAE2.pth                | Bin [31m1369353[m -> [32m0[m bytes
+ Failure/Decoder/PaperVAE22.pth               | Bin [31m1368610[m -> [32m0[m bytes
+ Failure/Decoder/Prova15.pth                  | Bin [31m884847[m -> [32m0[m bytes
+ Failure/Decoder/Prova15Decoder.pth           | Bin [31m204518[m -> [32m0[m bytes
+ Failure/Decoder/Prova2.pth                   | Bin [31m884830[m -> [32m0[m bytes
+ Failure/Encoder/P0.pth                       | Bin [31m1357434[m -> [32m0[m bytes
+ Failure/Encoder/P1.pth                       | Bin [31m2572730[m -> [32m0[m bytes
+ Failure/Encoder/PaperA.pth                   | Bin [31m14149550[m -> [32m0[m bytes
+ Failure/Encoder/PaperA2.pth                  | Bin [31m14145179[m -> [32m0[m bytes
+ Failure/Encoder/Prova.pth                    | Bin [31m3251137[m -> [32m0[m bytes
+ Failure/Encoder/Prova15.pth                  | Bin [31m912731[m -> [32m0[m bytes
+ Failure/Encoder/Prova2.pth                   | Bin [31m1155758[m -> [32m0[m bytes
+ Failure/Encoder/ProvaCiclo.pth               | Bin [31m1358562[m -> [32m0[m bytes
+ Failure/Encoder/Speranza.pth                 | Bin [31m2573704[m -> [32m0[m bytes
+ Simulation data/delay3dim20,20_noise0,0.json |   1 [32m+[m
+ encoderDatabase.json                         |  38 [32m++++++[m
+ simulationFactory.ipynb                      |  48 [32m+++[m[31m----[m
+ trainEncoder.ipynb                           | 835 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m--------------------------------------------------------[m
+ valEncoder.ipynb                             | 122 [32m++++++++++[m[31m-------[m
+ 24 files changed, 559 insertions(+), 488 deletions(-)
+
+[33mcommit cbd291733d28a57ca3f0992c3c1afdcb8c01d9b4[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Wed Jan 8 17:30:44 2025 +0000
+
+    Introduced dedicated NOtebook to study of Z3
+    reconstruction
+
+ Decoder Analysis Data/Model_1,1.csv                  |    2 [32m+[m
+ Decoder Analysis Data/Model_1.csv                    |    2 [32m+[m[31m-[m
+ Decoder Models Z3/Model_1.pth                        |  Bin [31m0[m -> [32m1641344[m bytes
+ Decoder Models/Model_1.pth                           |  Bin [31m3998185[m -> [32m2843460[m bytes
+ Encoder Analysis Data/Model_1.csv                    |    4 [32m+[m[31m-[m
+ Encoder Models/Model_1.pth                           |  Bin [31m36682667[m -> [32m36682667[m bytes
+ Encoder.py                                           |  231 [32m+++++++++++++++++++[m[31m--[m
+ Tools/__pycache__/analysis_tools.cpython-312.pyc     |  Bin [31m32906[m -> [32m32906[m bytes
+ Tools/__pycache__/data_utils.cpython-312.pyc         |  Bin [31m16166[m -> [32m16315[m bytes
+ Tools/__pycache__/mathematical_tools.cpython-312.pyc |  Bin [31m10663[m -> [32m10166[m bytes
+ Tools/__pycache__/training_tools.cpython-312.pyc     |  Bin [31m22728[m -> [32m25375[m bytes
+ Tools/analysis_tools.py                              |    2 [32m+[m[31m-[m
+ Tools/training_tools.py                              |  118 [32m+++++++++[m[31m--[m
+ Z3reconAnalysis.ipynb                                |  621 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ __pycache__/Encoder.cpython-312.pyc                  |  Bin [31m16577[m -> [32m24050[m bytes
+ decoderDatabase.json                                 |  265 [32m+[m[31m-----------------------[m
+ decoderDatabaseZ3.json                               |   36 [32m++++[m
+ embedding_preprocess.ipynb                           |   22 [32m+[m[31m-[m
+ encoderDatabase.json                                 |  322 [32m+[m[31m----------------------------[m
+ reconZ3.ipynb                                        |  454 [32m+++++++++++++++++++++++++++++++++++++++++[m
+ simulationFactory.ipynb                              |   22 [32m+[m[31m-[m
+ trainDecoder.ipynb                                   | 1150 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m----------------------------------------------[m
+ trainEncoder.ipynb                                   |  812 [32m++++++++++++++++++++++++++++++++++++[m[31m-------------------------------------[m
+ valDecoder.ipynb                                     |  204 [32m+++++++++[m[31m----------[m
+ valEncoder.ipynb                                     |   61 [32m+++[m[31m---[m
+ 25 files changed, 2637 insertions(+), 1691 deletions(-)
+
+[33mcommit deaa5f054df2c9988f16c54d36ce3f3630bf9c6d[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Wed Jan 8 12:42:23 2025 +0000
+
+    Fixed Network Notebooks
+
+ Decoder Analysis Data/Model_1.csv   |    2 [32m+[m
+ Decoder Models/Model_1.pth          |  Bin [31m0[m -> [32m3998185[m bytes
+ Encoder Analysis Data/Model_1.csv   |    3 [32m+[m
+ Encoder Models/Model_1.pth          |  Bin [31m0[m -> [32m36682667[m bytes
+ Encoder.py                          |    4 [32m+[m[31m-[m
+ Tools/data_utils.py                 |    7 [32m+[m[31m-[m
+ Tools/mathematical_tools.py         |   15 [31m-[m
+ __pycache__/Encoder.cpython-312.pyc |  Bin [31m16582[m -> [32m16577[m bytes
+ decoderDatabase.json                |   37 [32m+++[m
+ encoderDatabase.json                |   38 [32m+++[m
+ simulationFactory.ipynb             |   54 [32m++[m[31m--[m
+ trainDecoder.ipynb                  | 1073 [32m+++++++++++++++++++++++++++++++++[m[31m--------------------------------[m
+ trainEncoder.ipynb                  | 1969 [32m+++++++++++++++++++++++++++[m[31m---------------------------------------------------------------------------------------------[m
+ valDecoder.ipynb                    |  194 [32m++++++[m[31m------[m
+ valEncoder.ipynb                    |  173 [32m++++[m[31m-------[m
+ 15 files changed, 1249 insertions(+), 2320 deletions(-)
+
+[33mcommit c363e369306084e852afadfc9441e0eca3524409[m[33m ([m[1;32mHankel[m[33m)[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Wed Jan 8 11:24:36 2025 +0000
+
+    Introduced Relaxed Formalism for a relaxed Anger
+    Management
+
+ {Decoder Models => Failure/Decoder}/P0-0.1.pth         | Bin
+ {Decoder Models => Failure/Decoder}/P1.pth             | Bin
+ {Decoder Models => Failure/Decoder}/PaperVAE.pth       | Bin
+ {Decoder Models => Failure/Decoder}/PaperVAE2.pth      | Bin
+ {Decoder Models => Failure/Decoder}/PaperVAE22.pth     | Bin
+ {Decoder Models => Failure/Decoder}/Prova15.pth        | Bin
+ {Decoder Models => Failure/Decoder}/Prova15Decoder.pth | Bin
+ {Decoder Models => Failure/Decoder}/Prova2.pth         | Bin
+ {Encoder Models => Failure/Encoder}/P0.pth             | Bin
+ {Encoder Models => Failure/Encoder}/P1.pth             | Bin
+ {Encoder Models => Failure/Encoder}/PaperA.pth         | Bin
+ {Encoder Models => Failure/Encoder}/PaperA2.pth        | Bin
+ {Encoder Models => Failure/Encoder}/Prova.pth          | Bin
+ {Encoder Models => Failure/Encoder}/Prova15.pth        | Bin
+ {Encoder Models => Failure/Encoder}/Prova2.pth         | Bin
+ {Encoder Models => Failure/Encoder}/ProvaCiclo.pth     | Bin
+ {Encoder Models => Failure/Encoder}/Speranza.pth       | Bin
+ Simulation data/delay15dim20,10_noise0,0.json          |   1 [31m-[m
+ Simulation data/delay15dim20,15_noise0,0.json          |   1 [31m-[m
+ Tools/__pycache__/data_utils.cpython-312.pyc           | Bin [31m16257[m -> [32m16166[m bytes
+ Tools/__pycache__/mathematical_tools.cpython-312.pyc   | Bin [31m9395[m -> [32m10663[m bytes
+ Tools/data_utils.py                                    |   9 [32m+++++++++[m
+ Tools/mathematical_tools.py                            |  39 [32m+++++++++++++++++++++++++++++++++++++++[m
+ __pycache__/Encoder.cpython-312.pyc                    | Bin [31m16610[m -> [32m16582[m bytes
+ simulationFactory.ipynb                                |  42 [32m+++++++++++++++++++++[m[31m---------------------[m
+ valDecoder.ipynb                                       |  10 [32m+++++[m[31m-----[m
+ valEncoder.ipynb                                       |   6 [32m+++[m[31m---[m
+ 27 files changed, 77 insertions(+), 31 deletions(-)
+
+[33mcommit 83f7986506fb1191be8da7d5a871e4ba95b1827b[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Wed Jan 8 01:11:44 2025 +0000
+
+    """""Relaxed Formalism"""""""
+
+ Decoder Analysis Data/P0-0.1.csv                 |    2 [32m+[m
+ Decoder Analysis Data/P1.csv                     |    2 [32m+[m
+ Decoder Analysis Data/PaperVAE.csv               |    2 [32m+[m
+ Decoder Analysis Data/PaperVAE2.csv              |    2 [32m+[m
+ Decoder Analysis Data/PaperVAE22.csv             |    2 [32m+[m
+ Decoder Models/P0-0.1.pth                        |  Bin [31m0[m -> [32m506782[m bytes
+ Decoder Models/P1.pth                            |  Bin [31m0[m -> [32m884762[m bytes
+ Decoder Models/PaperVAE.pth                      |  Bin [31m0[m -> [32m1357688[m bytes
+ Decoder Models/PaperVAE2.pth                     |  Bin [31m0[m -> [32m1369353[m bytes
+ Decoder Models/PaperVAE22.pth                    |  Bin [31m0[m -> [32m1368610[m bytes
+ Decoder Models/Prova2.pth                        |  Bin [31m0[m -> [32m884830[m bytes
+ Encoder Analysis Data/P0.csv                     |    3 [32m+[m
+ Encoder Analysis Data/P1.csv                     |    3 [32m+[m
+ Encoder Analysis Data/PaperA.csv                 |    3 [32m+[m
+ Encoder Analysis Data/Prova2.csv                 |    3 [32m+[m
+ Encoder Analysis Data/ProvaCiclo.csv             |    3 [32m+[m
+ Encoder Analysis Data/Speranza.csv               |    3 [32m+[m
+ Encoder Models/P0.pth                            |  Bin [31m0[m -> [32m1357434[m bytes
+ Encoder Models/P1.pth                            |  Bin [31m0[m -> [32m2572730[m bytes
+ Encoder Models/PaperA.pth                        |  Bin [31m0[m -> [32m14149550[m bytes
+ Encoder Models/PaperA2.pth                       |  Bin [31m0[m -> [32m14145179[m bytes
+ Encoder Models/Prova.pth                         |  Bin [31m895937[m -> [32m3251137[m bytes
+ Encoder Models/Prova2.pth                        |  Bin [31m0[m -> [32m1155758[m bytes
+ Encoder Models/ProvaCiclo.pth                    |  Bin [31m0[m -> [32m1358562[m bytes
+ Encoder Models/Speranza.pth                      |  Bin [31m0[m -> [32m2573704[m bytes
+ Encoder.py                                       |    9 [32m+[m[31m-[m
+ Tools/__pycache__/analysis_tools.cpython-312.pyc |  Bin [31m32967[m -> [32m32906[m bytes
+ Tools/__pycache__/training_tools.cpython-312.pyc |  Bin [31m21800[m -> [32m22728[m bytes
+ Tools/analysis_tools.py                          |    6 [32m+[m[31m-[m
+ Tools/training_tools.py                          |   30 [32m+[m[31m-[m
+ decoderDatabase.json                             |  218 [32m++++++++++[m
+ encoderDatabase.json                             |  270 [32m+++++++++++[m[31m-[m
+ simulationFactory.ipynb                          |   44 [32m+[m[31m-[m
+ trainDecoder.ipynb                               | 2319 [32m+++++++++++++++++++++++++[m[31m-------------------------------------------------------------------------[m
+ trainEncoder.ipynb                               | 2525 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m----------------------------------------[m
+ valDecoder.ipynb                                 |  217 [32m+++++[m[31m-----[m
+ valEncoder.ipynb                                 |  132 [32m+++[m[31m---[m
+ 37 files changed, 2913 insertions(+), 2885 deletions(-)
+
+[33mcommit 6e957482d9a9b689b855a3a946584846f53b1f9f[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Mon Jan 6 18:05:26 2025 +0000
+
+    Fixed Decoder validation Notebook
+
+ Decoder Analysis Data/5D,0,0.csv         |    2 [31m-[m
+ Decoder Analysis Data/5D,0,10.csv        |    2 [31m-[m
+ Decoder Analysis Data/5D,0,5.csv         |    2 [31m-[m
+ Decoder Analysis Data/5D,3,0-Deeper.csv  |    2 [31m-[m
+ Decoder Analysis Data/5D,3,0.csv         |    2 [31m-[m
+ Decoder Analysis Data/5D,3,5.csv         |    2 [31m-[m
+ Decoder Analysis Data/5D,6,0.csv         |    2 [31m-[m
+ Decoder Analysis Data/5D,6,5.csv         |    2 [31m-[m
+ Decoder Analysis Data/5D,9,0.csv         |    2 [31m-[m
+ Decoder Analysis Data/5D,9,5.csv         |    2 [31m-[m
+ Decoder Analysis Data/Prova15.csv        |    2 [32m+[m
+ Decoder Analysis Data/Prova15Decoder.csv |    2 [32m+[m
+ Decoder Models/5D,0,0.pth                |  Bin [31m3339678[m -> [32m0[m bytes
+ Decoder Models/5D,0,10.pth               |  Bin [31m3339695[m -> [32m0[m bytes
+ Decoder Models/5D,0,5.pth                |  Bin [31m3339678[m -> [32m0[m bytes
+ Decoder Models/5D,3,0-Deeper.pth         |  Bin [31m3368449[m -> [32m0[m bytes
+ Decoder Models/5D,3,0.pth                |  Bin [31m4000633[m -> [32m0[m bytes
+ Decoder Models/5D,3,5.pth                |  Bin [31m3339678[m -> [32m0[m bytes
+ Decoder Models/5D,6,0.pth                |  Bin [31m3339678[m -> [32m0[m bytes
+ Decoder Models/5D,6,5.pth                |  Bin [31m3339678[m -> [32m0[m bytes
+ Decoder Models/5D,9,0.pth                |  Bin [31m3339678[m -> [32m0[m bytes
+ Decoder Models/5D,9,5.pth                |  Bin [31m3339678[m -> [32m0[m bytes
+ Decoder Models/Prova15.pth               |  Bin [31m0[m -> [32m884847[m bytes
+ Decoder Models/Prova15Decoder.pth        |  Bin [31m201310[m -> [32m204518[m bytes
+ Encoder Analysis Data/Prova.csv          |    3 [31m-[m
+ Encoder Analysis Data/Prova15.csv        |    4 [32m+[m[31m-[m
+ Encoder Analysis.ipynb                   |   60 [32m++[m[31m--[m
+ decoderDatabase.json                     |   30 [32m++[m
+ trainDecoder.ipynb                       | 2064 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m-------------------[m
+ valDecoder.ipynb                         |  612 [32m++++++++++++++++++++++++++[m[31m--------[m
+ valEncoder.ipynb                         |   79 [32m++[m[31m---[m
+ 31 files changed, 2293 insertions(+), 583 deletions(-)
+
+[33mcommit 61244a3edc623088c2724ac856abb3f82af15e14[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Sun Jan 5 18:12:41 2025 +0000
+
+    Working on Decoder validation.
+
+ Encoder Models/Prova15.pth                       |  Bin [31m912731[m -> [32m912731[m bytes
+ Tools/__pycache__/training_tools.cpython-312.pyc |  Bin [31m21529[m -> [32m21800[m bytes
+ Tools/training_tools.py                          |    8 [32m+[m[31m-[m
+ trainEncoder.ipynb                               | 1811 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m-----------------------------------------------------[m
+ valDecoder.ipynb                                 |  325 [32m++++++++[m[31m------------[m
+ 5 files changed, 1033 insertions(+), 1111 deletions(-)
+
+[33mcommit d5591314d156a09d9c32c9c62a9442fbd9b6e1e4[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Sun Jan 5 17:38:49 2025 +0000
+
+    Corrected decoder training
+
+ Decoder Models/Prova15Decoder.pth                |  Bin [31m0[m -> [32m201310[m bytes
+ Encoder Analysis Data/Prova15.csv                |    3 [32m+[m
+ Encoder Models/Prova15.pth                       |  Bin [31m0[m -> [32m912731[m bytes
+ Encoder.py                                       |   45 [32m+[m[31m--[m
+ Simulation data/delay15dim20,15_noise0,0.json    |    1 [32m+[m
+ Tools/__pycache__/database_tools.cpython-312.pyc |  Bin [31m3097[m -> [32m3097[m bytes
+ __pycache__/Encoder.cpython-312.pyc              |  Bin [31m16052[m -> [32m16610[m bytes
+ decoderDatabase.json                             |  277 [32m+[m[31m----------------[m
+ encoderDatabase.json                             |   30 [32m++[m
+ simulationFactory.ipynb                          |   38 [32m+[m[31m--[m
+ trainDecoder.ipynb                               |  717 [32m+++++++++++++++++++++[m[31m---------------------[m
+ trainEncoder.ipynb                               | 1833 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m------------------------------------------------------[m
+ valDecoder.ipynb                                 |   42 [32m+[m[31m--[m
+ valEncoder.ipynb                                 |  150 [32m++++++[m[31m---[m
+ 14 files changed, 1474 insertions(+), 1662 deletions(-)
+
+[33mcommit f22ba9f801e29c6f20fd4012a2fa360cf688eb7d[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Fri Jan 3 19:03:14 2025 +0000
+
+    Few comments
+
+ trainEncoder.ipynb | 38 [32m++++++++++++++++++++++++++++++++++++++[m
+ valEncoder.ipynb   |  4 [32m++[m[31m--[m
+ 2 files changed, 40 insertions(+), 2 deletions(-)
+
+[33mcommit 40e1ae01de29ea71f3eec2e019aac022e3854f6d[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Fri Jan 3 18:52:44 2025 +0000
+
+    Encoder Analysis finished.
+
+ Encoder Analysis Data/Prova.csv |  4 [32m++[m[31m--[m
+ valEncoder.ipynb                | 70 [32m++++++++++++++++++++++++++++++++++++++++++++++++[m[31m----------------------[m
+ 2 files changed, 50 insertions(+), 24 deletions(-)
+
+[33mcommit 9f2f17e9047322c26e12aea32535e07fe28dcddc[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Fri Jan 3 18:23:51 2025 +0000
+
+    1- Tested inverse projection from legendre basis
+    2- Adjusted encoder validation notebook
+
+ Encoder Analysis Data/Prova.csv                      |    3 [32m+[m
+ Encoder Models/Prova.pth                             |  Bin [31m405761[m -> [32m895937[m bytes
+ Simulation data/delay15dim20,10_noise0,0.json        |    2 [32m+[m[31m-[m
+ Tools/__pycache__/data_utils.cpython-312.pyc         |  Bin [31m16261[m -> [32m16257[m bytes
+ Tools/__pycache__/mathematical_tools.cpython-312.pyc |  Bin [31m8406[m -> [32m9395[m bytes
+ Tools/__pycache__/training_tools.cpython-312.pyc     |  Bin [31m21261[m -> [32m21529[m bytes
+ Tools/data_utils.py                                  |   43 [32m++[m[31m-[m
+ Tools/mathematical_tools.py                          |   38 [32m+++[m
+ Tools/training_tools.py                              |   10 [32m+[m[31m-[m
+ simulationFactory.ipynb                              |  170 [32m+++++++++[m[31m-[m
+ trainEncoder.ipynb                                   | 1858 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m----------------------------------------------------[m
+ valEncoder.ipynb                                     |  489 [32m++++++++++++++++++++++++[m[31m---[m
+ 12 files changed, 1595 insertions(+), 1018 deletions(-)
+
+[33mcommit 4ed459ce1dc02ba6e9f92b2d2478cba09051a563[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Fri Jan 3 14:42:16 2025 +0000
+
+    Succesuffly adapted encoder training
+
+ Encoder Analysis Data/5D,0,0.csv                     |    3 [31m-[m
+ Encoder Analysis Data/5D,0,10.csv                    |    3 [31m-[m
+ Encoder Analysis Data/5D,0,5.csv                     |    3 [31m-[m
+ Encoder Analysis Data/5D,3,0.csv                     |    3 [31m-[m
+ Encoder Analysis Data/5D,3,5.csv                     |    3 [31m-[m
+ Encoder Analysis Data/5D,6,0.csv                     |    3 [31m-[m
+ Encoder Analysis Data/5D,6,5.csv                     |    3 [31m-[m
+ Encoder Analysis Data/5D,9,0.csv                     |    3 [31m-[m
+ Encoder Analysis Data/5D,9,5.csv                     |    3 [31m-[m
+ Encoder Models/5D,0,10.pth                           |  Bin [31m409899[m -> [32m0[m bytes
+ Encoder Models/Prova.pth                             |  Bin [31m0[m -> [32m405761[m bytes
+ Simulation data/delay15dim20,10_noise0,0.json        |    2 [32m+[m[31m-[m
+ Simulation data/delay15dim20,10_noise9,10.json       |    1 [31m-[m
+ Tools/__pycache__/analysis_tools.cpython-312.pyc     |  Bin [31m32967[m -> [32m32967[m bytes
+ Tools/__pycache__/data_utils.cpython-312.pyc         |  Bin [31m15363[m -> [32m16261[m bytes
+ Tools/__pycache__/mathematical_tools.cpython-312.pyc |  Bin [31m7055[m -> [32m8406[m bytes
+ Tools/data_utils.py                                  |   63 [32m++[m[31m--[m
+ Tools/mathematical_tools.py                          |   38 [32m++[m[31m-[m
+ encoderDatabase.json                                 |    9 [32m+[m[31m-[m
+ simulationFactory.ipynb                              |   50 [32m++[m[31m-[m
+ trainEncoder.ipynb                                   | 1844 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m---------------------------------------------------[m
+ valEncoder.ipynb                                     |  318 [32m++[m[31m----------------[m
+ 22 files changed, 1061 insertions(+), 1291 deletions(-)
+
+[33mcommit 83be55e8b3a83b73bfe8efb10a9648c435420118[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Thu Jan 2 23:34:07 2025 +0000
+
+    Minor changes
+
+ simulationFactory.ipynb |   45 [32m+++++[m[31m-[m
+ trainEncoder.ipynb      | 1025 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m---[m
+ 2 files changed, 1048 insertions(+), 22 deletions(-)
+
+[33mcommit 2c6b5dafd84ddb33743278ead2cf5170d159c96d[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Thu Jan 2 15:49:33 2025 +0000
+
+    Debugging the encoder, checking Hankel matrix
+    dimensions and the encoder output dimensions
+
+ Encoder Models/1-1.pth                               |  Bin [31m5327660[m -> [32m0[m bytes
+ Encoder Models/1.pth                                 |  Bin [31m5325522[m -> [32m0[m bytes
+ Encoder Models/2(Noise6)-1.pth                       |  Bin [31m5303583[m -> [32m0[m bytes
+ Encoder Models/2.pth                                 |  Bin [31m5301757[m -> [32m0[m bytes
+ Encoder Models/3.pth                                 |  Bin [31m5301757[m -> [32m0[m bytes
+ Encoder Models/5D,0,0.pth                            |  Bin [31m5303772[m -> [32m0[m bytes
+ Encoder Models/5D,0,10.pth                           |  Bin [31m5303083[m -> [32m409899[m bytes
+ Encoder Models/5D,0,5.pth                            |  Bin [31m5303022[m -> [32m0[m bytes
+ Encoder Models/5D,3,0.pth                            |  Bin [31m5302775[m -> [32m0[m bytes
+ Encoder Models/5D,3,5.pth                            |  Bin [31m5303022[m -> [32m0[m bytes
+ Encoder Models/5D,6,0.pth                            |  Bin [31m5303022[m -> [32m0[m bytes
+ Encoder Models/5D,6,5.pth                            |  Bin [31m5303022[m -> [32m0[m bytes
+ Encoder Models/5D,9,0.pth                            |  Bin [31m5303022[m -> [32m0[m bytes
+ Encoder Models/5D,9,5.pth                            |  Bin [31m5303022[m -> [32m0[m bytes
+ Encoder.py                                           |   21 [32m++[m[31m-[m
+ Tools/__pycache__/mathematical_tools.cpython-312.pyc |  Bin [31m7055[m -> [32m7055[m bytes
+ Tools/__pycache__/model_tools.cpython-312.pyc        |  Bin [31m3216[m -> [32m3216[m bytes
+ Tools/__pycache__/training_tools.cpython-312.pyc     |  Bin [31m21261[m -> [32m21261[m bytes
+ Tools/mathematical_tools.py                          |    2 [32m+[m[31m-[m
+ __pycache__/Encoder.cpython-312.pyc                  |  Bin [31m15692[m -> [32m16052[m bytes
+ encoderDatabase.json                                 |   33 [32m++++[m
+ simulationFactory.ipynb                              |   19 [32m+[m[31m-[m
+ trainEncoder.ipynb                                   | 1066 [32m++++[m[31m---------------------------------------------------------------------------------------------------[m
+ 23 files changed, 95 insertions(+), 1046 deletions(-)
+
+[33mcommit 1bcbe70b8d07b05080dcb8f2b348962d67c8bd2e[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Thu Jan 2 14:16:55 2025 +0000
+
+    Introduction of Hankel Matrix in and
+    diensionality reduction with legendre polynomials
+    in the simulation data
+
+ Simulation data/{delay15dim20_noise0,0.json => delay15dim20,10_noise0,0.json}  |   2 [32m+[m[31m-[m
+ Simulation data/{delay15dim20_noise9,0.json => delay15dim20,10_noise9,10.json} |   2 [32m+[m[31m-[m
+ Simulation data/delay15dim20_noise0,10.json                                    |   1 [31m-[m
+ Simulation data/delay15dim20_noise0,5.json                                     |   1 [31m-[m
+ Simulation data/delay15dim20_noise3,0.json                                     |   1 [31m-[m
+ Simulation data/delay15dim20_noise3,10.json                                    |   1 [31m-[m
+ Simulation data/delay15dim20_noise3,5.json                                     |   1 [31m-[m
+ Simulation data/delay15dim20_noise6,0.json                                     |   1 [31m-[m
+ Simulation data/delay15dim20_noise6,10.json                                    |   1 [31m-[m
+ Simulation data/delay15dim20_noise6,5.json                                     |   1 [31m-[m
+ Simulation data/delay15dim20_noise9,10.json                                    |   1 [31m-[m
+ Simulation data/delay15dim20_noise9,5.json                                     |   1 [31m-[m
+ Tools/__pycache__/data_utils.cpython-312.pyc                                   | Bin [31m16546[m -> [32m15363[m bytes
+ Tools/__pycache__/mathematical_tools.cpython-312.pyc                           | Bin [31m0[m -> [32m7055[m bytes
+ Tools/data_utils.py                                                            | 237 [32m+++++++++++++++[m[31m---------------------------[m
+ Tools/mathematical_tools.py                                                    | 168 [32m++++++++++++++++++++++++++++++[m
+ encoderDatabase.json                                                           | 442 [31m------------------------------------------------------------------------------[m
+ simulationFactory.ipynb                                                        | 195 [32m+++++[m[31m-----------------------------[m
+ trainEncoder.ipynb                                                             |   5 [32m+[m[31m-[m
+ 19 files changed, 285 insertions(+), 776 deletions(-)
+
+[33mcommit b30a9ae60c6895bbcabd1b044afdca76d7e7c20f[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Tue Dec 17 17:12:05 2024 +0100
+
+    Update README.md
+
+ README.md | 127 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m-------------------[m
+ 1 file changed, 108 insertions(+), 19 deletions(-)
+
+[33mcommit 3a4ba0ce983646be40b3114fa930c971f5a63b03[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Tue Dec 17 15:21:38 2024 +0000
+
+    First part of introductive readme
+
+ README.md | 68 [32m++++++++++++++++++++[m[31m------------------------------------------------[m
+ 1 file changed, 20 insertions(+), 48 deletions(-)
+
+[33mcommit 3fac56b54a25cf4fd4168d2fd3374a48ed459b76[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Tue Dec 17 00:59:51 2024 +0000
+
+    ok
+
+ Decoder Analysis Data/5D,0,10.csv                |   2 [32m+[m
+ Decoder Analysis.ipynb                           |  78 [32m++++++++++[m[31m----[m
+ Decoder Models/5D,0,10.pth                       | Bin [31m0[m -> [32m3339695[m bytes
+ Encoder Analysis Data/5D,0,10.csv                |   3 [32m+[m
+ Encoder Models/5D,0,10.pth                       | Bin [31m0[m -> [32m5303083[m bytes
+ Simulation data/delay15dim20_noise0,10.json      |   1 [32m+[m
+ Simulation data/delay15dim20_noise3,10.json      |   1 [32m+[m
+ Simulation data/delay15dim20_noise6,10.json      |   1 [32m+[m
+ Simulation data/delay15dim20_noise9,10.json      |   1 [32m+[m
+ Tools/__pycache__/analysis_tools.cpython-312.pyc | Bin [31m32935[m -> [32m32967[m bytes
+ Tools/analysis_tools.py                          |   1 [32m+[m
+ decoderDatabase.json                             |  29 [32m+++++[m
+ encoderDatabase.json                             |  31 [32m++++++[m
+ simulationFactory.ipynb                          |  22 [32m++[m[31m--[m
+ trainDecoder.ipynb                               | 622 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m------------------------------------------------------[m
+ trainEncoder.ipynb                               |   8 [32m+[m[31m-[m
+ valDecoder.ipynb                                 |  88 [32m++++++++[m[31m--------[m
+ valEncoder.ipynb                                 |  57 [32m+++++[m[31m-----[m
+ 18 files changed, 528 insertions(+), 417 deletions(-)
+
+[33mcommit 027122a4181c7ae59499a69048c142b95c87406c[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Mon Dec 16 13:57:02 2024 +0000
+
+    Trained model for beta = 5
+
+ Decoder Analysis Data/5D,9,5.csv                 |    2 [32m+[m
+ Decoder Analysis.ipynb                           |  100 [32m++[m[31m----[m
+ Decoder Models/5D,9,5.pth                        |  Bin [31m0[m -> [32m3339678[m bytes
+ Encoder Analysis Data/5D,9,5.csv                 |    3 [32m+[m
+ Encoder Analysis.ipynb                           |    3 [32m+[m
+ Encoder Models/5D,9,5.pth                        |  Bin [31m0[m -> [32m5303022[m bytes
+ Tools/__pycache__/analysis_tools.cpython-312.pyc |  Bin [31m32297[m -> [32m32935[m bytes
+ Tools/analysis_tools.py                          |   13 [32m+[m
+ decoderDatabase.json                             |   29 [32m++[m
+ encoderDatabase.json                             |   31 [32m++[m
+ trainDecoder.ipynb                               |    6 [32m+[m[31m-[m
+ trainEncoder.ipynb                               | 1840 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m------------------------------------------------------[m
+ valDecoder.ipynb                                 |    2 [32m+[m[31m-[m
+ valEncoder.ipynb                                 |   57 [32m++[m[31m--[m
+ 14 files changed, 1065 insertions(+), 1021 deletions(-)
+
+[33mcommit 23ab4ee0d7f03a7a87c9d118b7b1ba80233f18f5[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Sun Dec 15 21:10:04 2024 +0000
+
+    Empty commit :(
+
+ Encoder Analysis.ipynb |  65 [32m++++++++[m[31m-------[m
+ trainDecoder.ipynb     | 614 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m-------------------------------------------------------------------[m
+ valDecoder.ipynb       | 124 [32m+++++++++++++[m[31m--------------[m
+ 3 files changed, 403 insertions(+), 400 deletions(-)
+
+[33mcommit 65847d0c13fac8673fc2b203e15709c95daf50f0[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Sun Dec 15 21:07:35 2024 +0000
+
+    Carried out analysis for increasing noise of
+    the sistem observation
+
+ Decoder Analysis Data/5D,0,5.csv                 |    2 [32m+[m
+ Decoder Analysis Data/5D,3,5.csv                 |    2 [32m+[m
+ Decoder Analysis Data/5D,6,5.csv                 |    2 [32m+[m
+ Decoder Analysis.ipynb                           |  123 [32m++++[m[31m----[m
+ Decoder Models/5D,0,5.pth                        |  Bin [31m0[m -> [32m3339678[m bytes
+ Decoder Models/5D,3,5.pth                        |  Bin [31m0[m -> [32m3339678[m bytes
+ Decoder Models/5D,6,5.pth                        |  Bin [31m0[m -> [32m3339678[m bytes
+ Encoder Analysis Data/5D,0,5.csv                 |    3 [32m+[m
+ Encoder Analysis Data/5D,3,5.csv                 |    3 [32m+[m
+ Encoder Analysis Data/5D,6,5.csv                 |    3 [32m+[m
+ Encoder Analysis.ipynb                           |   38 [32m++[m[31m-[m
+ Encoder Models/5D,0,5.pth                        |  Bin [31m0[m -> [32m5303022[m bytes
+ Encoder Models/5D,3,5.pth                        |  Bin [31m0[m -> [32m5303022[m bytes
+ Encoder Models/5D,6,5.pth                        |  Bin [31m0[m -> [32m5303022[m bytes
+ Tools/__pycache__/analysis_tools.cpython-312.pyc |  Bin [31m32313[m -> [32m32297[m bytes
+ Tools/analysis_tools.py                          |   29 [32m+[m[31m-[m
+ decoderDatabase.json                             |   87 [32m++++++[m
+ encoderDatabase.json                             |   93 [32m++++++[m
+ trainDecoder.ipynb                               |  648 [32m+++++++++++++++++++[m[31m-------------------[m
+ trainEncoder.ipynb                               | 1842 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m------------------------------------------------------[m
+ valDecoder.ipynb                                 |  128 [32m++++[m[31m----[m
+ valEncoder.ipynb                                 |  106 [32m++++[m[31m---[m
+ 22 files changed, 1670 insertions(+), 1439 deletions(-)
+
+[33mcommit 00fb3baba760ec0073833e33dce6db1ea9b4cdd3[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Sun Dec 15 17:19:19 2024 +0000
+
+    trained model for beta = 0
+
+ Decoder Analysis Data/1.csv                         |    2 [31m-[m
+ Decoder Analysis Data/2-2.csv                       |    2 [31m-[m
+ Decoder Analysis Data/2-2Deeper.csv                 |    2 [31m-[m
+ Decoder Analysis Data/5D,0,0.csv                    |    2 [32m+[m
+ Decoder Analysis Data/5D,3,0-Deeper.csv             |    2 [32m+[m
+ Decoder Analysis Data/5D,3,0.csv                    |    2 [32m+[m
+ Decoder Analysis Data/5D,6,0.csv                    |    2 [32m+[m
+ Decoder Analysis Data/5D,9,0.csv                    |    2 [32m+[m
+ Decoder Analysis.ipynb                              |  109 [32m++++[m[31m---[m
+ Decoder Models/5D,0,0.pth                           |  Bin [31m0[m -> [32m3339678[m bytes
+ Decoder Models/{2-2Deeper.pth => 5D,3,0-Deeper.pth} |  Bin
+ Decoder Models/{2-2.pth => 5D,3,0.pth}              |  Bin
+ Decoder Models/{1.pth => 5D,6,0.pth}                |  Bin [31m4000539[m -> [32m3339678[m bytes
+ Decoder Models/5D,9,0.pth                           |  Bin [31m0[m -> [32m3339678[m bytes
+ Encoder Analysis Data/1-1.csv                       |    5 [31m-[m
+ Encoder Analysis Data/1.csv                         |    3 [31m-[m
+ Encoder Analysis Data/2(NoNoise)-1.csv              |    3 [31m-[m
+ Encoder Analysis Data/2(Noise6)-1.csv               |    3 [31m-[m
+ Encoder Analysis Data/2-1.csv                       |    5 [31m-[m
+ Encoder Analysis Data/2.csv                         |    3 [31m-[m
+ Encoder Analysis Data/3.csv                         |    3 [31m-[m
+ Encoder Analysis Data/5D,0,0.csv                    |    3 [32m+[m
+ Encoder Analysis Data/5D,3,0.csv                    |    3 [32m+[m
+ Encoder Analysis Data/5D,6,0.csv                    |    3 [32m+[m
+ Encoder Analysis Data/5D,9,0.csv                    |    3 [32m+[m
+ Encoder Analysis.ipynb                              |   86 [32m+++[m[31m--[m
+ Encoder Models/{2(NoNoise)-1.pth => 5D,0,0.pth}     |  Bin
+ Encoder Models/{2-1.pth => 5D,3,0.pth}              |  Bin
+ Encoder Models/5D,6,0.pth                           |  Bin [31m0[m -> [32m5303022[m bytes
+ Encoder Models/5D,9,0.pth                           |  Bin [31m0[m -> [32m5303022[m bytes
+ README.md                                           |    3 [32m+[m
+ Simulation data/delay15dim20_noise0,5.json          |    1 [32m+[m
+ Simulation data/delay15dim20_noise3,5.json          |    1 [32m+[m
+ Simulation data/delay15dim20_noise6,5.json          |    1 [32m+[m
+ Simulation data/delay15dim20_noise9,5.json          |    1 [32m+[m
+ Tools/__pycache__/analysis_tools.cpython-312.pyc    |  Bin [31m32621[m -> [32m32313[m bytes
+ Tools/analysis_tools.py                             |   43 [32m++[m[31m-[m
+ decoderDatabase.json                                |   93 [32m+++++[m[31m-[m
+ encoderDatabase.json                                |   66 [32m+++[m[31m-[m
+ simulationFactory.ipynb                             |   42 [32m+[m[31m--[m
+ trainDecoder.ipynb                                  |  642 [32m++++++++++++++++++[m[31m------------------[m
+ trainEncoder.ipynb                                  | 1840 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m----------------------------------------------------[m
+ valDecoder.ipynb                                    |  147 [32m+++++[m[31m----[m
+ valEncoder.ipynb                                    |   94 [32m+++[m[31m---[m
+ validationData.ipynb                                | 1056 [31m------------------------------------------------------------[m
+ 45 files changed, 1698 insertions(+), 2580 deletions(-)
+
+[33mcommit ed8113f2b73fd19efe395fba6ef28319c4340305[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Sun Dec 15 15:40:12 2024 +0000
+
+    Implemented Decoder Anakysis
+
+ Decoder Analysis Data/1.csv                      |   2 [32m+[m
+ Decoder Analysis Data/2-2.csv                    |   2 [32m+[m
+ Decoder Analysis Data/2-2Deeper.csv              |   2 [32m+[m
+ Decoder Analysis.ipynb                           | 353 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ Encoder Analysis.ipynb                           | 290 [32m++++++[m[31m----------------------------------------------------------------------------------[m
+ Tools/__pycache__/analysis_tools.cpython-312.pyc | Bin [31m22482[m -> [32m32621[m bytes
+ Tools/analysis_tools.py                          | 224 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ valDecoder.ipynb                                 | 110 [32m++++++++++++++++[m[31m------------------[m
+ 8 files changed, 653 insertions(+), 330 deletions(-)
+
+[33mcommit ada1d948c649f1c5aaad9eb8ddbf6ac4531be75c[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Sat Dec 14 21:18:37 2024 +0000
+
+    Analysis of the encoder data
+
+ Encoder Analysis Data/1-1.csv                    |   2 [32m+[m
+ Encoder Analysis Data/2-1.csv                    |   2 [32m+[m
+ Encoder Analysis.ipynb                           | 434 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ Tools/__pycache__/analysis_tools.cpython-312.pyc | Bin [31m20698[m -> [32m22482[m bytes
+ Tools/analysis_tools.py                          |  56 [32m+++++++++++++[m[31m-[m
+ valEncoder.ipynb                                 |  94 [32m++++++++++++[m[31m------------[m
+ 6 files changed, 539 insertions(+), 49 deletions(-)
+
+[33mcommit 7a2c52aae26421ec391933b90f0ee8d3c2b2caf4[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Sat Dec 14 18:29:08 2024 +0000
+
+    Added csv management of analysis result for models
+
+ Encoder Analysis Data/1-1.csv                    |   3 [32m+++[m
+ Encoder Analysis Data/1.csv                      |   3 [32m+++[m
+ Encoder Analysis Data/2(NoNoise)-1.csv           |   3 [32m+++[m
+ Encoder Analysis Data/2(Noise6)-1.csv            |   3 [32m+++[m
+ Encoder Analysis Data/2-1.csv                    |   3 [32m+++[m
+ Encoder Analysis Data/2.csv                      |   3 [32m+++[m
+ Encoder Analysis Data/3.csv                      |   3 [32m+++[m
+ Tools/__pycache__/analysis_tools.cpython-312.pyc | Bin [31m18916[m -> [32m20698[m bytes
+ Tools/__pycache__/database_tools.cpython-312.pyc | Bin [31m0[m -> [32m3097[m bytes
+ Tools/analysis_tools.py                          | 129 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m------------------------[m
+ Tools/database_tools.py                          |  58 [32m++++++++++++++++++++++++++++++++++++++++++[m
+ valDecoder.ipynb                                 | 151 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m--------------------------------------[m
+ valEncoder.ipynb                                 | 113 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m------------------------------[m
+ 13 files changed, 345 insertions(+), 127 deletions(-)
+
+[33mcommit a2ed616108a68c051c8a715516a1f8539ed1b384[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Fri Dec 13 19:20:37 2024 +0000
+
+    Decoder Analysis is fully optimized
+
+ Decoder Models/1.pth           |  Bin [31m2377307[m -> [32m4000539[m bytes
+ Decoder Models/2-2.pth         |  Bin [31m0[m -> [32m4000633[m bytes
+ Decoder Models/2-2Deeper.pth   |  Bin [31m0[m -> [32m3368449[m bytes
+ Old Codes/VAE.py               |  220 [31m-------------------------[m
+ Old Codes/networkFactory.ipynb | 1092 [31m-----------------------------------------------------------------------------------------------------------------------------[m
+ README.md                      |   14 [32m+[m[31m-[m
+ decoderDatabase.json           |   39 [32m+++[m[31m--[m
+ trainDecoder.ipynb             |  365 [32m+++++++++++++++++++++++++++++++++++++[m[31m-----[m
+ valDecoder.ipynb               |  673 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m---[m
+ 9 files changed, 1013 insertions(+), 1390 deletions(-)
+
+[33mcommit 5d5938e3e3cf7ae0f991f7e4ed163f84aa4a1491[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Fri Dec 13 17:47:33 2024 +0000
+
+    First validation for Decoder
+
+ trainDecoder.ipynb |   7 [31m-------[m
+ valDecoder.ipynb   | 137 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m----------------[m
+ 2 files changed, 121 insertions(+), 23 deletions(-)
+
+[33mcommit 2b428af51ddaaf3c1c61dd942df1aadaff88076d[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Fri Dec 13 17:37:48 2024 +0000
+
+    Added Decoder training
+
+ Decoder Models/1.pth                             | Bin [31m0[m -> [32m2377307[m bytes
+ Encoder.py                                       | 106 [32m+++++++++++[m[31m-[m
+ Tools/__pycache__/training_tools.cpython-312.pyc | Bin [31m16466[m -> [32m21261[m bytes
+ Tools/training_tools.py                          | 144 [32m+++++++++++++++[m[31m-[m
+ __pycache__/Encoder.cpython-312.pyc              | Bin [31m12506[m -> [32m15692[m bytes
+ decoderDatabase.json                             |  66 [32m+++++++[m[31m-[m
+ trainDecoder.ipynb                               | 184 [32m++++++++++++++++++[m[31m---[m
+ trainEncoder.ipynb                               | 973 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m--[m
+ valDecoder.ipynb                                 | 181 [32m++++++++++++++++++++[m
+ valEncoder.ipynb                                 |  88 [32m+++++[m[31m-----[m
+ 10 files changed, 1648 insertions(+), 94 deletions(-)
+
+[33mcommit e3bae22974b5a0576f8b56011901e03900661042[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Thu Dec 12 21:50:37 2024 +0000
+
+    Created Decoder training and let's call it a day
+
+ Encoder Models/1-1.pth                        | Bin [31m0[m -> [32m5327660[m bytes
+ Encoder Models/2(NoNoise)-1.pth               | Bin [31m0[m -> [32m5303772[m bytes
+ Encoder Models/2(Noise6)-1.pth                | Bin [31m0[m -> [32m5303583[m bytes
+ Encoder Models/2-1.pth                        | Bin [31m0[m -> [32m5302775[m bytes
+ Encoder Models/2.pth                          | Bin [31m0[m -> [32m5301757[m bytes
+ Encoder Models/3.pth                          | Bin [31m0[m -> [32m5301757[m bytes
+ Encoder.py                                    |  34 [32m+++++++++++++[m[31m-[m
+ Old Codes/VAE.py                              | 281 [32m++[m[31m----------------------------------------------------------------------------------------------------------[m
+ README.md                                     |   7 [32m++[m[31m-[m
+ Simulation data/delay15dim20_noise0,0.json    |   1 [32m+[m
+ Tools/__pycache__/model_tools.cpython-312.pyc | Bin [31m2749[m -> [32m3216[m bytes
+ Tools/model_tools.py                          |  15 [32m++++++[m
+ __pycache__/Encoder.cpython-312.pyc           | Bin [31m10817[m -> [32m12506[m bytes
+ __pycache__/VAE.cpython-312.pyc               | Bin [31m23208[m -> [32m0[m bytes
+ __pycache__/analysis_tools.cpython-312.pyc    | Bin [31m13735[m -> [32m0[m bytes
+ __pycache__/data_utils.cpython-312.pyc        | Bin [31m16540[m -> [32m0[m bytes
+ __pycache__/model_tools.cpython-312.pyc       | Bin [31m2743[m -> [32m0[m bytes
+ __pycache__/training_tools.cpython-312.pyc    | Bin [31m13624[m -> [32m0[m bytes
+ decoderDatabase.json                          |  34 [32m++++++++++++++[m
+ encoderDatabase.json                          | 158 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ simulationFactory.ipynb                       |  36 [32m+++++++[m[31m-------[m
+ trainDecoder.ipynb                            | 287 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ trainEncoder.ipynb                            |  29 [32m++++++[m[31m------[m
+ valEncoder.ipynb                              |  95 [32m+++++++++++++++++++[m[31m------------------[m
+ 24 files changed, 619 insertions(+), 358 deletions(-)
+
+[33mcommit 345ce30b45bb4d82fd1c74bb67499e9215552f1c[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Thu Dec 12 20:29:50 2024 +0000
+
+    Fixed Encoder training for Z2 recon
+
+ Encoder Models/1.pth                             | Bin [31m0[m -> [32m5325522[m bytes
+ Encoder Models/5.pth                             | Bin [31m3798949[m -> [32m0[m bytes
+ Encoder.py                                       |  17 [32m++[m[31m-[m
+ README.md                                        |   5 [32m+[m
+ Tools/__pycache__/analysis_tools.cpython-312.pyc | Bin [31m18925[m -> [32m18916[m bytes
+ Tools/__pycache__/training_tools.cpython-312.pyc | Bin [31m15522[m -> [32m16466[m bytes
+ Tools/analysis_tools.py                          |   2 [32m+[m[31m-[m
+ Tools/training_tools.py                          |  18 [32m++[m[31m-[m
+ __pycache__/Encoder.cpython-312.pyc              | Bin [31m10182[m -> [32m10817[m bytes
+ encoderDatabase.json                             |  38 [32m++++++[m[31m-[m
+ trainEncoder.ipynb                               | 675 [32m++++[m[31m--------------------------------------------------------------------------------------------------------[m
+ valEncoder.ipynb                                 |  76 [32m+++++++[m[31m------[m
+ 12 files changed, 133 insertions(+), 698 deletions(-)
+
+[33mcommit e9bae2b79eeb3d901980f8114fd24e324e3b48fc[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Thu Dec 12 19:03:07 2024 +0000
+
+    1-Implemented reconstruction for Z2 (y1) and saved
+    encoder training.
+    2-Implemented Encoder analysis
+
+ Analysis Data/3.csv                                    |   5 [31m-[m
+ Analysis Data/4.csv                                    |   3 [31m-[m
+ Analysis Data/5.csv                                    |   3 [31m-[m
+ Analysis Data/Prima prova.csv                          |   3 [31m-[m
+ Analysis Data/Prova2.csv                               |   2 [31m-[m
+ Analysis Data/Seconda.csv                              |  22 [31m---[m
+ Encoder Models/5.pth                                   | Bin [31m0[m -> [32m3798949[m bytes
+ Encoder.py                                             | 231 [32m+++++++++++++++++++++++++[m
+ Models/3.pth                                           | Bin [31m5378827[m -> [32m0[m bytes
+ Models/4.pth                                           | Bin [31m5378827[m -> [32m0[m bytes
+ Models/5.pth                                           | Bin [31m5378827[m -> [32m0[m bytes
+ Models/Seconda.pth                                     | Bin [31m3635589[m -> [32m0[m bytes
+ VAE.py => Old Codes/VAE.py                             |  46 [31m-----[m
+ networkFactory.ipynb => Old Codes/networkFactory.ipynb |   0
+ README.md                                              |  37 [32m++[m[31m--[m
+ Tools/__pycache__/analysis_tools.cpython-312.pyc       | Bin [31m0[m -> [32m18925[m bytes
+ Tools/__pycache__/data_utils.cpython-312.pyc           | Bin [31m0[m -> [32m16546[m bytes
+ Tools/__pycache__/model_tools.cpython-312.pyc          | Bin [31m0[m -> [32m2749[m bytes
+ Tools/__pycache__/training_tools.cpython-312.pyc       | Bin [31m0[m -> [32m15522[m bytes
+ analysis_tools.py => Tools/analysis_tools.py           |  93 [32m++++++++++[m
+ data_utils.py => Tools/data_utils.py                   |   0
+ model_tools.py => Tools/model_tools.py                 |   4 [32m+[m[31m-[m
+ Tools/training_tools.py                                | 345 [32m+++++++++++++++++++++++++++++++++++++[m
+ __pycache__/Encoder.cpython-312.pyc                    | Bin [31m0[m -> [32m10182[m bytes
+ __pycache__/data_utils.cpython-312.pyc                 | Bin [31m16540[m -> [32m16540[m bytes
+ __pycache__/model_tools.cpython-312.pyc                | Bin [31m2731[m -> [32m2743[m bytes
+ __pycache__/training_tools.cpython-312.pyc             | Bin [31m0[m -> [32m13624[m bytes
+ encoderDatabase.json                                   |  33 [32m++++[m
+ modelDatabase.json                                     | 162 [31m-----------------[m
+ trainEncoder.ipynb                                     | 966 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ valEncoder.ipynb                                       | 640 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ validationData.ipynb                                   |   4 [31m-[m
+ 32 files changed, 2335 insertions(+), 264 deletions(-)
+
+[33mcommit 45e11ec08016566ff217718f8319b71b1afcca84[m[33m ([m[1;32mNormalized-1D[m[33m)[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Thu Dec 12 16:25:16 2024 +0000
+
+    Lot of run to get the best model tooning the
+    hyperparameters. Still up to suboptima solution.
+
+ Analysis Data/3.csv                        |   5 [32m+[m
+ Analysis Data/4.csv                        |   3 [32m+[m
+ Analysis Data/5.csv                        |   3 [32m+[m
+ Analysis Data/Seconda.csv                  |  16 [32m++[m[31m-[m
+ Models/3.pth                               | Bin [31m0[m -> [32m5378827[m bytes
+ Models/4.pth                               | Bin [31m0[m -> [32m5378827[m bytes
+ Models/5.pth                               | Bin [31m0[m -> [32m5378827[m bytes
+ Models/Seconda.pth                         | Bin [31m0[m -> [32m3635589[m bytes
+ README.md                                  |  17 [32m+++[m
+ VAE.py                                     |  11 [32m+[m[31m-[m
+ __pycache__/VAE.cpython-312.pyc            | Bin [31m23005[m -> [32m23208[m bytes
+ __pycache__/analysis_tools.cpython-312.pyc | Bin [31m0[m -> [32m13735[m bytes
+ analysis_tools.py                          |   1 [32m+[m
+ modelDatabase.json                         | 135 [32m++++++++++++++++++[m[31m--[m
+ networkFactory.ipynb                       | 763 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m-----------[m
+ validationData.ipynb                       | 185 [32m+++++++++++++++++[m[31m-----------[m
+ 16 files changed, 984 insertions(+), 155 deletions(-)
+
+[33mcommit a92a57acddcaa50d7029ba76137dc2c2c5cce97c[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Wed Dec 11 18:41:27 2024 +0000
+
+    Added gradient control
+
+ Analysis Data/Prima prova.csv              |   5 [32m++[m[31m--[m
+ Analysis Data/Prova2.csv                   |   2 [32m++[m
+ Analysis Data/Seconda.csv                  |   8 [32m++++++[m
+ Simulation data/delay15dim20_noise6,0.json |   1 [32m+[m
+ Simulation data/delay15dim20_noise9,0.json |   1 [32m+[m
+ VAE.py                                     | 101 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m---------[m
+ __pycache__/VAE.cpython-312.pyc            | Bin [31m20168[m -> [32m23005[m bytes
+ __pycache__/analysis_tools.cpython-312.pyc | Bin [31m13628[m -> [32m0[m bytes
+ __pycache__/data_utils.cpython-312.pyc     | Bin [31m16525[m -> [32m16540[m bytes
+ __pycache__/model_tools.cpython-312.pyc    | Bin [31m2750[m -> [32m2731[m bytes
+ modelDatabase.json                         |  48 [32m++++++++++++++++++++++++++++++++[m[31m--[m
+ networkFactory.ipynb                       | 164 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m---------------------------------------------[m
+ simulationFactory.ipynb                    | 124 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m--------------[m
+ validationData.ipynb                       | 148 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m-----------------------------------------------[m
+ 14 files changed, 435 insertions(+), 167 deletions(-)
+
+[33mcommit a4f9d27eaa4090ac7cc864cdb3b7a4d0ca5882b3[m
+Author: Federico Sbarbati <federicosbarbati@gmail.com>
+Date:   Mon Dec 9 19:18:39 2024 +0100
+
+    Aggiustato ultimo layer decoder, vediamo come va
+
+ Analysis Data/Prima prova.csv              |   2 [32m++[m
+ Models/Prima prova.pth                     | Bin [31m2421592[m -> [32m0[m bytes
+ VAE.py                                     |   2 [32m+[m[31m-[m
+ __pycache__/VAE.cpython-312.pyc            | Bin [31m20016[m -> [32m20168[m bytes
+ __pycache__/analysis_tools.cpython-312.pyc | Bin [31m0[m -> [32m13628[m bytes
+ modelDatabase.json                         |  40 [32m+[m[31m----------------------------------[m
+ networkFactory.ipynb                       |  54 [32m++++++++++++++++++++++++++++++[m[31m-----------------[m
+ simulationFactory.ipynb                    | 118 [32m++++++++++++++[m[31m-----------------------------------------------------------------------------------------[m
+ validationData.ipynb                       | 130 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m------------------------------------------------------------[m
+ 9 files changed, 117 insertions(+), 229 deletions(-)
+
+[33mcommit 3db2640e26833c42fd60e6a332e37c98be90acb0[m
+Author: Federico Sbarbati <federicosbarbati@gmail.com>
+Date:   Mon Dec 9 19:08:37 2024 +0100
+
+    Va tutto male
+
+ Analysis Data/CleanNorm,3.csv               |   2 [31m-[m
+ Analysis Data/CleanNorm.csv                 |   2 [31m-[m
+ Analysis Data/GitTry.csv                    |   2 [31m-[m
+ Analysis Data/Prova,1.csv                   |   2 [31m-[m
+ Analysis Data/Try1.csv                      |   2 [31m-[m
+ Models/GitTry.pth                           | Bin [31m2423341[m -> [32m0[m bytes
+ Models/Prima prova.pth                      | Bin [31m0[m -> [32m2421592[m bytes
+ Models/Prova,1.pth                          | Bin [31m2423597[m -> [32m0[m bytes
+ Models/Prova,2.pth                          | Bin [31m2439644[m -> [32m0[m bytes
+ Models/Prova,3.pth                          | Bin [31m2436508[m -> [32m0[m bytes
+ Models/Try1.pth                             | Bin [31m2422607[m -> [32m0[m bytes
+ Simulation data/delay15dim20_noise0,0.json  |   1 [31m-[m
+ Simulation data/delay15dim20_noise3,0.json  |   2 [32m+[m[31m-[m
+ Simulation data/delay15dim20_noise3,10.json |   1 [31m-[m
+ Simulation data/delay15dim20_noise3,15.json |   1 [31m-[m
+ Simulation data/delay15dim20_noise3,2.json  |   1 [31m-[m
+ Simulation data/delay15dim20_noise3,20.json |   1 [31m-[m
+ Simulation data/delay15dim20_noise3,5.json  |   1 [31m-[m
+ Simulation data/delay15dim20_noise6,0.json  |   1 [31m-[m
+ Simulation data/delay15dim20_noise6,5.json  |   1 [31m-[m
+ Simulation data/delay15dim20_noise9,0.json  |   1 [31m-[m
+ Simulation data/delay15dim20_noise9,5.json  |   1 [31m-[m
+ __pycache__/VAE.cpython-312.pyc             | Bin [31m20036[m -> [32m20016[m bytes
+ __pycache__/analysis_tools.cpython-312.pyc  | Bin [31m13627[m -> [32m0[m bytes
+ __pycache__/data_utils.cpython-312.pyc      | Bin [31m16538[m -> [32m16525[m bytes
+ __pycache__/model_tools.cpython-312.pyc     | Bin [31m2731[m -> [32m2750[m bytes
+ data_utils.py                               |   6 [32m+[m[31m--[m
+ modelDatabase.json                          | 313 [32m+++++++++++++++[m[31m--------------------------------------------------------------------------------------------------[m
+ networkFactory.ipynb                        |  79 [32m++++++++[m[31m---------------------[m
+ simulationFactory.ipynb                     | 120 [32m++++++++++++++++++++++++++++++++++++[m[31m-------[m
+ 30 files changed, 167 insertions(+), 373 deletions(-)
+
+[33mcommit 60eee5224840752b786c352fa35be6b226ddfdea[m
+Author: Federico Sbarbati <federicosbarbati@gmail.com>
+Date:   Mon Dec 9 18:58:51 2024 +0100
+
+    Creazione branch normalizzato
+
+ networkFactory.ipynb | 4 [32m++[m[31m--[m
+ validationData.ipynb | 4 [32m++[m[31m--[m
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+[33mcommit 9b08a4d654e3dac58b27e02ccb05c5581baf19ae[m[33m ([m[1;32mNoNorm[m[33m)[m
+Author: FedericoSbarbati <76119885+FedericoSbarbati@users.noreply.github.com>
+Date:   Mon Dec 9 17:53:00 2024 +0000
+
+    Allenato un modello su Codespace
+
+ Analysis Data/GitTry.csv                   |   2 [32m+[m
+ Models/GitTry.pth                          | Bin [31m0[m -> [32m2423341[m bytes
+ __pycache__/VAE.cpython-312.pyc            | Bin [31m20016[m -> [32m20036[m bytes
+ __pycache__/analysis_tools.cpython-312.pyc | Bin [31m13628[m -> [32m13627[m bytes
+ __pycache__/data_utils.cpython-312.pyc     | Bin [31m16523[m -> [32m16538[m bytes
+ __pycache__/model_tools.cpython-312.pyc    | Bin [31m2750[m -> [32m2731[m bytes
+ modelDatabase.json                         | 507 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m-----------------------------------------------------[m
+ networkFactory.ipynb                       | 151 [32m+++++++++++++[m[31m---------------------[m
+ validationData.ipynb                       | 372 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m-------------[m
+ 9 files changed, 647 insertions(+), 385 deletions(-)
+
+[33mcommit 47a01428852597fd7cd9c1f6d0dfd5773b0967b8[m
+Author: Federico Sbarbati <federicosbarbati@gmail.com>
+Date:   Mon Dec 9 18:40:48 2024 +0100
+
+    Initial commit
+
+ Analysis Data/CleanNorm,3.csv               |   2 [32m+[m
+ Analysis Data/CleanNorm.csv                 |   2 [32m+[m
+ Analysis Data/Prova,1.csv                   |   2 [32m+[m
+ Analysis Data/Try1.csv                      |   2 [32m+[m
+ Models/Prova,1.pth                          | Bin [31m0[m -> [32m2423597[m bytes
+ Models/Prova,2.pth                          | Bin [31m0[m -> [32m2439644[m bytes
+ Models/Prova,3.pth                          | Bin [31m0[m -> [32m2436508[m bytes
+ Models/Try1.pth                             | Bin [31m0[m -> [32m2422607[m bytes
+ Simulation data/delay15dim20_noise0,0.json  |   1 [32m+[m
+ Simulation data/delay15dim20_noise3,0.json  |   1 [32m+[m
+ Simulation data/delay15dim20_noise3,10.json |   1 [32m+[m
+ Simulation data/delay15dim20_noise3,15.json |   1 [32m+[m
+ Simulation data/delay15dim20_noise3,2.json  |   1 [32m+[m
+ Simulation data/delay15dim20_noise3,20.json |   1 [32m+[m
+ Simulation data/delay15dim20_noise3,5.json  |   1 [32m+[m
+ Simulation data/delay15dim20_noise6,0.json  |   1 [32m+[m
+ Simulation data/delay15dim20_noise6,5.json  |   1 [32m+[m
+ Simulation data/delay15dim20_noise9,0.json  |   1 [32m+[m
+ Simulation data/delay15dim20_noise9,5.json  |   1 [32m+[m
+ VAE.py                                      | 461 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ __pycache__/VAE.cpython-312.pyc             | Bin [31m0[m -> [32m20016[m bytes
+ __pycache__/analysis_tools.cpython-312.pyc  | Bin [31m0[m -> [32m13628[m bytes
+ __pycache__/data_utils.cpython-312.pyc      | Bin [31m0[m -> [32m16523[m bytes
+ __pycache__/model_tools.cpython-312.pyc     | Bin [31m0[m -> [32m2750[m bytes
+ analysis_tools.py                           | 274 [32m++++++++++++++++++++++++++++++++++++++++++[m
+ data_utils.py                               | 368 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ embedding_preprocess.ipynb                  | 169 [32m++++++++++++++++++++++++++[m
+ modelDatabase.json                          | 235 [32m++++++++++++++++++++++++++++++++++++[m
+ model_tools.py                              |  67 [32m+++++++++++[m
+ networkFactory.ipynb                        | 499 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ simulationFactory.ipynb                     | 253 [32m+++++++++++++++++++++++++++++++++++++++[m
+ validationData.ipynb                        | 745 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 32 files changed, 3090 insertions(+)
