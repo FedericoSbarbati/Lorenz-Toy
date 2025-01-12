@@ -416,5 +416,233 @@
                 "eta_min": 1e-08
             }
         }
+    },
+    "30,20-Noise0,5": {
+        "layer_dims": [
+            20,
+            15,
+            10,
+            5
+        ],
+        "latent_dim": 5,
+        "beta_method": "sigmoid",
+        "beta_value": 0.01,
+        "kl_annealing_epochs": 250,
+        "decay_start": 100,
+        "decay_epoch": 50,
+        "early_stopping": {
+            "patience": 10,
+            "delta": -1
+        },
+        "dataset": "delay3dim30,20_noise0,5",
+        "batch_size": 32,
+        "optimizer": "Adam",
+        "learning_rate": 0.02,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.5,
+                "patience": 10,
+                "min_lr": 1e-09,
+                "base_lr": 0.0001,
+                "max_lr": 0.01,
+                "step_size_up": 200,
+                "T_max": 100,
+                "T_0": 10,
+                "T_mult": 2,
+                "eta_min": 1e-08
+            }
+        }
+    },
+    "30,20-Noise0,10": {
+        "layer_dims": [
+            20,
+            15,
+            10,
+            5
+        ],
+        "latent_dim": 5,
+        "beta_method": "sigmoid",
+        "beta_value": 0.01,
+        "kl_annealing_epochs": 250,
+        "decay_start": 100,
+        "decay_epoch": 50,
+        "early_stopping": {
+            "patience": 10,
+            "delta": -1
+        },
+        "dataset": "delay3dim30,20_noise0,10",
+        "batch_size": 32,
+        "optimizer": "Adam",
+        "learning_rate": 0.02,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.5,
+                "patience": 10,
+                "min_lr": 1e-09,
+                "base_lr": 0.0001,
+                "max_lr": 0.01,
+                "step_size_up": 200,
+                "T_max": 100,
+                "T_0": 10,
+                "T_mult": 2,
+                "eta_min": 1e-08
+            }
+        }
+    },
+    "30,20-Noise0,15": {
+        "layer_dims": [
+            20,
+            15,
+            10,
+            5
+        ],
+        "latent_dim": 5,
+        "beta_method": "sigmoid",
+        "beta_value": 0.01,
+        "kl_annealing_epochs": 250,
+        "decay_start": 100,
+        "decay_epoch": 50,
+        "early_stopping": {
+            "patience": 10,
+            "delta": -1
+        },
+        "dataset": "delay3dim30,20_noise0,15",
+        "batch_size": 32,
+        "optimizer": "Adam",
+        "learning_rate": 0.02,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.5,
+                "patience": 10,
+                "min_lr": 1e-09,
+                "base_lr": 0.0001,
+                "max_lr": 0.01,
+                "step_size_up": 200,
+                "T_max": 100,
+                "T_0": 10,
+                "T_mult": 2,
+                "eta_min": 1e-08
+            }
+        }
+    },
+    "30,20-Noise5,5": {
+        "layer_dims": [
+            20,
+            15,
+            10,
+            5
+        ],
+        "latent_dim": 5,
+        "beta_method": "sigmoid",
+        "beta_value": 0.01,
+        "kl_annealing_epochs": 250,
+        "decay_start": 100,
+        "decay_epoch": 50,
+        "early_stopping": {
+            "patience": 10,
+            "delta": -1
+        },
+        "dataset": "delay3dim30,20_noise5,5",
+        "batch_size": 32,
+        "optimizer": "Adam",
+        "learning_rate": 0.02,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.5,
+                "patience": 10,
+                "min_lr": 1e-09,
+                "base_lr": 0.0001,
+                "max_lr": 0.01,
+                "step_size_up": 200,
+                "T_max": 100,
+                "T_0": 10,
+                "T_mult": 2,
+                "eta_min": 1e-08
+            }
+        }
+    },
+    "30,20-Noise5,10": {
+        "layer_dims": [
+            20,
+            15,
+            10,
+            5
+        ],
+        "latent_dim": 5,
+        "beta_method": "sigmoid",
+        "beta_value": 0.01,
+        "kl_annealing_epochs": 250,
+        "decay_start": 100,
+        "decay_epoch": 50,
+        "early_stopping": {
+            "patience": 10,
+            "delta": -1
+        },
+        "dataset": "delay3dim30,20_noise5,10",
+        "batch_size": 32,
+        "optimizer": "Adam",
+        "learning_rate": 0.02,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.5,
+                "patience": 10,
+                "min_lr": 1e-09,
+                "base_lr": 0.0001,
+                "max_lr": 0.01,
+                "step_size_up": 200,
+                "T_max": 100,
+                "T_0": 10,
+                "T_mult": 2,
+                "eta_min": 1e-08
+            }
+        }
+    },
+    "30,20-Noise5,15": {
+        "layer_dims": [
+            20,
+            15,
+            10,
+            5
+        ],
+        "latent_dim": 5,
+        "beta_method": "sigmoid",
+        "beta_value": 0.01,
+        "kl_annealing_epochs": 250,
+        "decay_start": 100,
+        "decay_epoch": 50,
+        "early_stopping": {
+            "patience": 10,
+            "delta": -1
+        },
+        "dataset": "delay3dim30,20_noise5,15",
+        "batch_size": 32,
+        "optimizer": "Adam",
+        "learning_rate": 0.02,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.5,
+                "patience": 10,
+                "min_lr": 1e-09,
+                "base_lr": 0.0001,
+                "max_lr": 0.01,
+                "step_size_up": 200,
+                "T_max": 100,
+                "T_0": 10,
+                "T_mult": 2,
+                "eta_min": 1e-08
+            }
+        }
     }
 }

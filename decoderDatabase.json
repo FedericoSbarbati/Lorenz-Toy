@@ -578,5 +578,209 @@
             }
         },
         "Encoder": "30,20-Noise21,0"
+    },
+    "30,20-Noise0,5": {
+        "decoder_layers": [
+            5,
+            20,
+            40
+        ],
+        "latent_dim": 5,
+        "early_stopping": {
+            "patience": 10,
+            "delta": -1
+        },
+        "dataset": "delay3dim30,20_noise0,5",
+        "batch_size": 32,
+        "optimizer": "Adam",
+        "learning_rate": 0.02,
+        "gamma": 2.0,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.5,
+                "patience": 10,
+                "min_lr": 1e-09,
+                "base_lr": 0.0001,
+                "max_lr": 0.01,
+                "step_size_up": 200,
+                "T_max": 100,
+                "T_0": 10,
+                "T_mult": 2,
+                "eta_min": 1e-08
+            }
+        },
+        "Encoder": "30,20-Noise0,5"
+    },
+    "30,20-Noise0,10": {
+        "decoder_layers": [
+            5,
+            20,
+            40
+        ],
+        "latent_dim": 5,
+        "early_stopping": {
+            "patience": 10,
+            "delta": -1
+        },
+        "dataset": "delay3dim30,20_noise0,10",
+        "batch_size": 32,
+        "optimizer": "Adam",
+        "learning_rate": 0.02,
+        "gamma": 2.0,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.5,
+                "patience": 10,
+                "min_lr": 1e-09,
+                "base_lr": 0.0001,
+                "max_lr": 0.01,
+                "step_size_up": 200,
+                "T_max": 100,
+                "T_0": 10,
+                "T_mult": 2,
+                "eta_min": 1e-08
+            }
+        },
+        "Encoder": "30,20-Noise0,10"
+    },
+    "30,20-Noise0,15": {
+        "decoder_layers": [
+            5,
+            20,
+            40
+        ],
+        "latent_dim": 5,
+        "early_stopping": {
+            "patience": 10,
+            "delta": -1
+        },
+        "dataset": "delay3dim30,20_noise0,15",
+        "batch_size": 32,
+        "optimizer": "Adam",
+        "learning_rate": 0.02,
+        "gamma": 2.0,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.5,
+                "patience": 10,
+                "min_lr": 1e-09,
+                "base_lr": 0.0001,
+                "max_lr": 0.01,
+                "step_size_up": 200,
+                "T_max": 100,
+                "T_0": 10,
+                "T_mult": 2,
+                "eta_min": 1e-08
+            }
+        },
+        "Encoder": "30,20-Noise0,15"
+    },
+    "30,20-Noise5,5": {
+        "decoder_layers": [
+            5,
+            20,
+            40
+        ],
+        "latent_dim": 5,
+        "early_stopping": {
+            "patience": 10,
+            "delta": -1
+        },
+        "dataset": "delay3dim30,20_noise5,5",
+        "batch_size": 32,
+        "optimizer": "Adam",
+        "learning_rate": 0.02,
+        "gamma": 2.0,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.5,
+                "patience": 10,
+                "min_lr": 1e-09,
+                "base_lr": 0.0001,
+                "max_lr": 0.01,
+                "step_size_up": 200,
+                "T_max": 100,
+                "T_0": 10,
+                "T_mult": 2,
+                "eta_min": 1e-08
+            }
+        },
+        "Encoder": "30,20-Noise5,5"
+    },
+    "30,20-Noise5,10": {
+        "decoder_layers": [
+            5,
+            20,
+            40
+        ],
+        "latent_dim": 5,
+        "early_stopping": {
+            "patience": 10,
+            "delta": -1
+        },
+        "dataset": "delay3dim30,20_noise5,10",
+        "batch_size": 32,
+        "optimizer": "Adam",
+        "learning_rate": 0.02,
+        "gamma": 2.0,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.5,
+                "patience": 10,
+                "min_lr": 1e-09,
+                "base_lr": 0.0001,
+                "max_lr": 0.01,
+                "step_size_up": 200,
+                "T_max": 100,
+                "T_0": 10,
+                "T_mult": 2,
+                "eta_min": 1e-08
+            }
+        },
+        "Encoder": "30,20-Noise5,10"
+    },
+    "30,20-Noise5,15": {
+        "decoder_layers": [
+            5,
+            20,
+            40
+        ],
+        "latent_dim": 5,
+        "early_stopping": {
+            "patience": 10,
+            "delta": -1
+        },
+        "dataset": "delay3dim30,20_noise5,15",
+        "batch_size": 32,
+        "optimizer": "Adam",
+        "learning_rate": 0.02,
+        "gamma": 2.0,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.5,
+                "patience": 10,
+                "min_lr": 1e-09,
+                "base_lr": 0.0001,
+                "max_lr": 0.01,
+                "step_size_up": 200,
+                "T_max": 100,
+                "T_0": 10,
+                "T_mult": 2,
+                "eta_min": 1e-08
+            }
+        },
+        "Encoder": "30,20-Noise5,15"
     }
 }

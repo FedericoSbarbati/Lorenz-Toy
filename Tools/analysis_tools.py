@@ -875,6 +875,27 @@ def filter_by_config_params(data, filters, yes):
                 raise ValueError(f"Tipo di filtro '{filter_type}' non supportato.")
         
         return filtered_data
+    
+def sort_by_alpha_and_beta(data, alpha_col, beta_col):
+    """
+    Ordina i dati rispetto ai parametri alpha e beta.
+    Per ciascun valore di alpha (in ordine crescente), ordina i beta in ordine crescente.
+
+    Parameters:
+        data (pd.DataFrame): Dataset da ordinare.
+        alpha_col (str): Nome della colonna per i valori di alpha.
+        beta_col (str): Nome della colonna per i valori di beta.
+
+    Returns:
+        pd.DataFrame: Dataset ordinato.
+    """
+    if alpha_col not in data.columns or beta_col not in data.columns:
+        raise ValueError(f"Le colonne '{alpha_col}' o '{beta_col}' non esistono nel dataset.")
+    
+    # Ordina prima per alpha (crescente) e poi per beta (crescente)
+    sorted_data = data.sort_values(by=[alpha_col, beta_col], ascending=[True, True])
+    return sorted_data
+
 
 
 
