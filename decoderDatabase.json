@@ -884,5 +884,178 @@
             }
         },
         "Encoder": "30,20-Noise10,15"
+    },
+    "Test1-15": {
+        "decoder_layers": [
+            5,
+            20,
+            40,
+            60
+        ],
+        "latent_dim": 5,
+        "early_stopping": {
+            "patience": 10,
+            "delta": -1
+        },
+        "dataset": "delay15dim40,30_noise0,0",
+        "batch_size": 32,
+        "optimizer": "Adam",
+        "learning_rate": 0.02,
+        "gamma": 2.0,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.5,
+                "patience": 10,
+                "min_lr": 1e-09,
+                "base_lr": 0.0001,
+                "max_lr": 0.01,
+                "step_size_up": 200,
+                "T_max": 100,
+                "T_0": 10,
+                "T_mult": 2,
+                "eta_min": 1e-08
+            }
+        },
+        "Encoder": "Test1-15"
+    },
+    "Test2-15": {
+        "decoder_layers": [
+            6,
+            20,
+            40,
+            60
+        ],
+        "latent_dim": 6,
+        "early_stopping": {
+            "patience": 10,
+            "delta": -1
+        },
+        "dataset": "delay15dim40,30_noise0,0",
+        "batch_size": 32,
+        "optimizer": "Adam",
+        "learning_rate": 0.02,
+        "gamma": 2.0,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.5,
+                "patience": 10,
+                "min_lr": 1e-09,
+                "base_lr": 0.0001,
+                "max_lr": 0.01,
+                "step_size_up": 200,
+                "T_max": 100,
+                "T_0": 10,
+                "T_mult": 2,
+                "eta_min": 1e-08
+            }
+        },
+        "Encoder": "Test2-15"
+    },
+    "Test3-15": {
+        "decoder_layers": [
+            6,
+            20,
+            40,
+            60
+        ],
+        "latent_dim": 6,
+        "early_stopping": {
+            "patience": 10,
+            "delta": -1
+        },
+        "dataset": "delay15dim40,30_noise0,0",
+        "batch_size": 1000,
+        "optimizer": "Adam",
+        "learning_rate": 0.02,
+        "gamma": 2.0,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.5,
+                "patience": 10,
+                "min_lr": 1e-09,
+                "base_lr": 0.0001,
+                "max_lr": 0.01,
+                "step_size_up": 200,
+                "T_max": 100,
+                "T_0": 10,
+                "T_mult": 2,
+                "eta_min": 1e-08
+            }
+        },
+        "Encoder": "Test3-15"
+    },
+    "Test4-15": {
+        "decoder_layers": [
+            5,
+            20,
+            40
+        ],
+        "latent_dim": 5,
+        "early_stopping": {
+            "patience": 10,
+            "delta": -1
+        },
+        "dataset": "delay15dim30,20_noise0,0",
+        "batch_size": 1000,
+        "optimizer": "Adam",
+        "learning_rate": 0.02,
+        "gamma": 2.0,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.5,
+                "patience": 10,
+                "min_lr": 1e-09,
+                "base_lr": 0.0001,
+                "max_lr": 0.01,
+                "step_size_up": 200,
+                "T_max": 100,
+                "T_0": 10,
+                "T_mult": 2,
+                "eta_min": 1e-08
+            }
+        },
+        "Encoder": "Test4-15"
+    },
+    "Test5-15": {
+        "decoder_layers": [
+            5,
+            20,
+            40
+        ],
+        "latent_dim": 5,
+        "early_stopping": {
+            "patience": 10,
+            "delta": -1
+        },
+        "dataset": "delay15dim30,20_noise0,0",
+        "batch_size": 1000,
+        "optimizer": "Adam",
+        "learning_rate": 0.02,
+        "gamma": 2.0,
+        "scheduler": {
+            "type": "ReduceLROnPlateau",
+            "params": {
+                "mode": "min",
+                "factor": 0.5,
+                "patience": 10,
+                "min_lr": 1e-09,
+                "base_lr": 0.0001,
+                "max_lr": 0.01,
+                "step_size_up": 200,
+                "T_max": 100,
+                "T_0": 10,
+                "T_mult": 2,
+                "eta_min": 1e-08
+            }
+        },
+        "Encoder": "Test5-15"
     }
 }

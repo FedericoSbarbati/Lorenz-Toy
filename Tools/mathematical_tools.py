@@ -259,6 +259,69 @@ def reconstruct_time_series(hankel_matrix):
     
     return time_series
 
+def mutual_information(data, delay, n_bins):
+    """
+    Calcola la mutual information data una serie temporale e un ritardo.
+    
+    Parametri:
+    - data: array di dati della serie temporale
+    - delay: ritardo per calcolare la mutual information
+    - n_bins: numero di bin per la discretizzazione dei dati
+    
+    Ritorna:
+    - I: valore della mutual information per il ritardo specificato
+    """
+    I = 0
+    xmax = np.max(data)
+    xmin = np.min(data)
+    size_bin = (xmax - xmin) / n_bins
+    
+    # Dati con ritardo
+    delay_data = data[delay:]
+    short_data = data[:-delay]
+    
+    # Dizionari per probabilità marginali e congiunte
+    prob_in_bin = {}
+    condition_bin = {}
+    condition_delay_bin = {}
+    
+    # Calcolo delle probabilità marginali
+    for h in range(n_bins):
+        condition_bin[h] = (short_data >= (xmin + h * size_bin)) & (short_data < (xmin + (h + 1) * size_bin))
+        prob_in_bin[h] = np.sum(condition_bin[h]) / len(short_data)
+    
+    # Calcolo delle probabilità congiunte
+    for h in range(n_bins):
+        for k in range(n_bins):
+            condition_delay_bin[k] = (delay_data >= (xmin + k * size_bin)) & (delay_data < (xmin + (k + 1) * size_bin))
+            joint_prob = np.sum(condition_bin[h] & condition_delay_bin[k]) / len(short_data)
+            
+            # Evita logaritmi di probabilità zero
+            if joint_prob > 0 and prob_in_bin[h] > 0 and prob_in_bin[k] > 0:
+                I += joint_prob * math.log(joint_prob / (prob_in_bin[h] * prob_in_bin[k]))
+    
+    return I
+
+def false_nearest_neighbors(data, delay, embedding_dimension, threshold=10):
+    """
+    Calcola la frazione di falsi vicini in modo ottimizzato.
+    """
+    embedded_data = create_time_delay_embedding(data, delay, embedding_dimension)
+    nbrs = NearestNeighbors(n_neighbors=2).fit(embedded_data)
+    distances, indices = nbrs.kneighbors(embedded_data)
+
+    false_neighbors_count = 0
+    for i in range(len(embedded_data)):
+        if i + embedding_dimension * delay < len(data) and indices[i, 1] + embedding_dimension * delay < len(data):
+            distance_increased = abs(
+                data[i + embedding_dimension * delay] - data[indices[i, 1] + embedding_dimension * delay]
+            )
+            ratio = distance_increased / distances[i, 1]
+            if ratio > threshold:
+                false_neighbors_count += 1
+
+    return false_neighbors_count / len(embedded_data)
+
 
 
 
