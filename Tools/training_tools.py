@@ -220,6 +220,7 @@ def plot_Decoder_results(train_losses, val_losses, gradient_history,z1_losses,z3
     plt.tight_layout()
     plt.show()
 
+'''
     # Carica i gradienti salvati
     epochs = range(len(gradient_history["z1"]))
 
@@ -232,7 +233,7 @@ def plot_Decoder_results(train_losses, val_losses, gradient_history,z1_losses,z3
     plt.legend()
     plt.grid()
     plt.show()
-
+'''
 
 
 def loss_function_vae(recon_x, x, mu, log_var, beta):
