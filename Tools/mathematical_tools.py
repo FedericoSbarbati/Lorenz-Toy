@@ -281,16 +281,41 @@ def mutual_information(data, delay, n_bins):
     short_data = data[:-delay]
     
     # Dizionari per probabilità marginali e congiunte
-    prob_in_bin = {}
-    condition_bin = {}
-    condition_delay_bin = {}
-    
+    prob_in_bin_short = np.zeros(n_bins)
+    prob_in_bin_delay = np.zeros(n_bins)
+    prob_in_bin_joint = np.zeros((n_bins,n_bins))
+    #condition_bin_short = {}
+    #condition_bin_delay = {}
+    #condition_bin_joint = {}
+  
     # Calcolo delle probabilità marginali
     for h in range(n_bins):
-        condition_bin[h] = (short_data >= (xmin + h * size_bin)) & (short_data < (xmin + (h + 1) * size_bin))
-        prob_in_bin[h] = np.sum(condition_bin[h]) / len(short_data)
+        condition_bin_short = (short_data >= (xmin + h * size_bin)) & (short_data < (xmin + (h + 1) * size_bin))
+        prob_in_bin_short[h] = np.sum(condition_bin_short) / len(short_data)
+        
+    for h in range(n_bins):
+        condition_bin_delay = (delay_data >= (xmin + h * size_bin)) & (delay_data < (xmin + (h + 1) * size_bin))
+        prob_in_bin_delay[h] = np.sum(condition_bin_delay) / len(delay_data)
     
+    for h in range(n_bins):
+        for k in range(n_bins):
+            condition_bin_joint = (short_data >= (xmin + h * size_bin)) & (short_data < (xmin + (h + 1) * size_bin)) & \
+            (delay_data >= (xmin + k * size_bin)) & (delay_data < (xmin + (k + 1) * size_bin))
+            prob_in_bin_joint[h,k] = np.sum(condition_bin_joint) / len(short_data)
+            
+            # Evita logaritmi di probabilità zero
+            if prob_in_bin_joint[h,k] > 0 and prob_in_bin_short[h] > 0 and prob_in_bin_delay[k] > 0:
+                I += prob_in_bin_joint[h,k] * np.log(prob_in_bin_joint[h,k] / (prob_in_bin_short[h] * prob_in_bin_delay[k]))
+
+    #print(prob_in_bin_short,prob_in_bin_delay,prob_in_bin_joint) 
+    print(np.sum(prob_in_bin_delay))
+    print(np.sum(prob_in_bin_short))
+    print(np.sum(prob_in_bin_joint))
+
     # Calcolo delle probabilità congiunte
+    
+    
+    '''
     for h in range(n_bins):
         for k in range(n_bins):
             condition_delay_bin[k] = (delay_data >= (xmin + k * size_bin)) & (delay_data < (xmin + (k + 1) * size_bin))
@@ -299,7 +324,8 @@ def mutual_information(data, delay, n_bins):
             # Evita logaritmi di probabilità zero
             if joint_prob > 0 and prob_in_bin[h] > 0 and prob_in_bin[k] > 0:
                 I += joint_prob * math.log(joint_prob / (prob_in_bin[h] * prob_in_bin[k]))
-    
+    '''
+
     return I
 
 def false_nearest_neighbors(data, delay, embedding_dimension, threshold=10):
