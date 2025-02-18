@@ -515,7 +515,6 @@ def plot_encoder_metric(data, metric, title, ylabel):
     plt.tight_layout()
     plt.grid(axis="y", linestyle="--", alpha=0.7)
     plt.show()
-
 def plot_z_metrics(data, r2_col, mse_col, maxse_col, title):
     """
     Crea un plot con barre sovrapposte per R2, MSE e MaxSE per ogni encoder.
@@ -536,8 +535,12 @@ def plot_z_metrics(data, r2_col, mse_col, maxse_col, title):
     data["MSE Normalized"] = (data[mse_col] - data[mse_col].min()) / (data[mse_col].max() - data[mse_col].min())
     data["MaxSE Normalized"] = (data[maxse_col] - data[maxse_col].min()) / (data[maxse_col].max() - data[maxse_col].min())
 
-    # Etichette sull'asse X
-    model_names = data["Model Name"].astype(str)
+    # Imposta le etichette sull'asse X: includi anche alpha e beta se esistono
+    if "alpha" in data.columns and "beta" in data.columns:
+        model_names = data.apply(lambda row: f"{row['Model Name']} (α={row['alpha']}, β={row['beta']})", axis=1)
+    else:
+        model_names = data["Model Name"].astype(str)
+    
     x = np.arange(len(model_names))
     
     # Larghezza delle barre
@@ -552,7 +555,7 @@ def plot_z_metrics(data, r2_col, mse_col, maxse_col, title):
     
     # Personalizza il grafico
     plt.title(title)
-    plt.xlabel("Model Name")
+    plt.xlabel("Model Name (α, β)")
     plt.ylabel("Normalized Metric Value")
     plt.xticks(x, model_names, rotation=45, ha="right", fontsize=10)
     plt.legend()
@@ -635,59 +638,25 @@ def preprocess_array_string(array_string):
 
 
 
-
-def plot_pca_r2_and_variance(data, r2_col, variance_col, title):
-    """
-    Crea un plot con linee collegate per ogni modello:
-    - X: Varianza spiegata per ciascun componente principale.
-    - Y: R2 per ciascun componente principale.
-    
-    Ogni modello ha un colore diverso.
-    
-    Parametri:
-    - data: DataFrame con i dati degli encoder.
-    - r2_col: Nome della colonna contenente i R2 per i PC.
-    - variance_col: Nome della colonna contenente la varianza spiegata per i PC.
-    - title: Titolo del grafico.
-    """
-    plt.figure(figsize=(12, 6))
-    
-    for index, row in data.iterrows():
-        model_name = row["Model Name"]
-        
-        # Recupera R2 e varianza spiegata, correggendo eventuali problemi di formato
-        r2_values = np.array(eval(row[r2_col]))
-        variance_values = np.array(preprocess_array_string(row[variance_col]))
-        
-        # Plotta i valori per il modello
-        plt.plot(
-            variance_values, r2_values, marker='o', label=model_name, alpha=0.8
-        )
-
-    
-    # Personalizza il grafico
-    plt.title(title)
-    plt.xlabel("Explained Variance (%)")
-    plt.ylabel("PCA R2")
-    plt.grid(axis="both", linestyle="--", alpha=0.7)
-    plt.legend(title="Models", loc="best", fontsize="small")
-    plt.tight_layout()
-    plt.show()
-
+# Modified preprocess_array_data function
 def preprocess_array_data(data, r2_col, variance_col):
     """
     Preprocessa i dati nelle colonne PCA R2 e Variance Explained.
-    
+
     Parametri:
     - data: DataFrame con i dati.
     - r2_col: Nome della colonna con R2 delle componenti principali.
     - variance_col: Nome della colonna con la varianza spiegata.
-    
+
     Ritorna:
     - Dizionario con i dati processati per plotting.
     """
     processed_data = {"models": [], "r2_values": [], "variance_values": []}
-
+    if "alpha" in data.columns:
+        processed_data["alpha"] = []
+    if "beta" in data.columns:
+        processed_data["beta"] = []
+        
     for index, row in data.iterrows():
         model_name = row["Model Name"]
 
@@ -698,22 +667,61 @@ def preprocess_array_data(data, r2_col, variance_col):
         processed_data["models"].append(model_name)
         processed_data["r2_values"].append(r2_values)
         processed_data["variance_values"].append(variance_values)
+        
+        if "alpha" in data.columns:
+            processed_data["alpha"].append(row["alpha"])
+        if "beta" in data.columns:
+            processed_data["beta"].append(row["beta"])
     
     return processed_data
 
-def plot_r2_pca(data, r2_col , variance_col, title):
 
-    processed_data = preprocess_array_data(data, r2_col, variance_col)
+# Modified plot_r2_and_variance_separate function
+def plot_r2_and_variance_separate(data, r2_col, variance_col, r2_title):
+    """
+    Crea due plot separati per R2 e Varianza spiegata dalle componenti principali.
+    
+    Parametri:
+    - data: DataFrame con i dati.
+    - r2_col: Nome della colonna con R2.
+    - variance_col: Nome della colonna con la varianza spiegata.
+    """
+    # First sort the DataFrame by alpha and beta
+    sorted_df = sort_by_alpha_and_beta(data, "alpha", "beta")
+    # Then preprocess the sorted DataFrame so that keys "models", "r2_values", "alpha", and "beta" exist
+    processed_data = preprocess_array_data(sorted_df, r2_col, variance_col)
     
     # Plot per R2
     plt.figure(figsize=(12, 6))
-    for model_name, r2_values in zip(processed_data["models"], processed_data["r2_values"]):
+    for model_name, r2_values, alpha, beta in zip(
+        processed_data["models"],
+        processed_data["r2_values"],
+        processed_data.get("alpha", [None]*len(processed_data["models"])),
+        processed_data.get("beta", [None]*len(processed_data["models"]))
+    ):
         components = np.arange(1, len(r2_values) + 1)
-        plt.plot(components, r2_values, marker='o', linestyle='-', label=model_name, alpha=0.8)
+        label = f"alpha={alpha}, beta={beta}" if (alpha is not None and beta is not None) else model_name
+        plt.plot(components, r2_values, marker='o', linestyle='-', label=label, alpha=0.8)
     
-    plt.title(title)
+    plt.title(r2_title)
     plt.xlabel("Principal Component Number")
     plt.ylabel("R² Value")
+    plt.grid(axis="both", linestyle="--", alpha=0.7)
+    plt.legend(title="Models", loc="best", fontsize="small")
+    plt.tight_layout()
+    plt.show()
+
+    # Plot per Varianza spiegata
+    plt.figure(figsize=(12, 6))
+    for model_name, variance_values in zip(
+        processed_data["models"], processed_data["variance_values"]
+    ):
+        components = np.arange(1, len(variance_values) + 1)
+        plt.plot(components, variance_values, marker='x', linestyle='--', label=model_name, alpha=0.8)
+    
+    plt.title("Explained Variance by Principal Component")
+    plt.xlabel("Principal Component Number")
+    plt.ylabel("Explained Variance")
     plt.grid(axis="both", linestyle="--", alpha=0.7)
     plt.legend(title="Models", loc="best", fontsize="small")
     plt.tight_layout()
@@ -736,47 +744,6 @@ def plot_variance_pca(data, r2_col , variance_col, title):
     plt.tight_layout()
     plt.show()
 
-
-
-def plot_r2_and_variance_separate(data, r2_col, variance_col):
-    """
-    Crea due plot separati per R2 e Varianza spiegata dalle componenti principali.
-    
-    Parametri:
-    - data: DataFrame con i dati.
-    - r2_col: Nome della colonna con R2.
-    - variance_col: Nome della colonna con la varianza spiegata.
-    """
-    processed_data = preprocess_array_data(data, r2_col, variance_col)
-    
-    # Plot per R2
-    plt.figure(figsize=(12, 6))
-    for model_name, r2_values in zip(processed_data["models"], processed_data["r2_values"]):
-        components = np.arange(1, len(r2_values) + 1)
-        plt.plot(components, r2_values, marker='o', linestyle='-', label=model_name, alpha=0.8)
-    
-    plt.title("PCA R² by Principal Component")
-    plt.xlabel("Principal Component Number")
-    plt.ylabel("R² Value")
-    plt.grid(axis="both", linestyle="--", alpha=0.7)
-    plt.legend(title="Models", loc="best", fontsize="small")
-    plt.tight_layout()
-    plt.show()
-
-    # Plot per Varianza spiegata
-    plt.figure(figsize=(12, 6))
-    for model_name, variance_values in zip(processed_data["models"], processed_data["variance_values"]):
-        components = np.arange(1, len(variance_values) + 1)
-        plt.plot(components, variance_values, marker='x', linestyle='--', label=model_name, alpha=0.8)
-    
-    
-    plt.title("Explained Variance by Principal Component")
-    plt.xlabel("Principal Component Number")
-    plt.ylabel("Explained Variance")
-    plt.grid(axis="both", linestyle="--", alpha=0.7)
-    plt.legend(title="Models", loc="best", fontsize="small")
-    plt.tight_layout()
-    plt.show()
 
 def order_dataset_by_model(data):
     # Extract model information
